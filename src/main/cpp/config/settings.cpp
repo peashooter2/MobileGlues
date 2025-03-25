@@ -73,7 +73,7 @@ void init_settings() {
         int isQcom = isAdreno(gpuString);
         int is740 = isAdreno740(gpuString);
         int is830 = isAdreno830(gpuString);
-        int hasVk13 = hasVulkan13();
+        int hasVk13 = false;
 
         LOG_D("Is Adreno? = %s", isQcom ? "true" : "false")
         LOG_D("Is Adreno 830? = %s", is830 ? "true" : "false")
@@ -119,4 +119,6 @@ void init_settings() {
     global_settings.maxGlslCacheSize = maxGlslCacheSize;
 
     global_settings.enableCompatibleMode = enableCompatibleMode;
+
+    LOG_D("settings initialized")
 }
