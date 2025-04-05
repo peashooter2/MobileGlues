@@ -9,6 +9,9 @@
 void APIENTRY_GL4ES gl4es_glTexImage2D(GLenum target, GLint level, GLint internalFormat,
                   GLsizei width, GLsizei height, GLint border,
                   GLenum format, GLenum type, const GLvoid *data);
+void  gl4es_glTexImage2D_real(GLenum target, GLint level, GLint internalFormat,
+                  GLsizei width, GLsizei height, GLint border,
+                  GLenum format, GLenum type, const GLvoid *data);
 
 void APIENTRY_GL4ES gl4es_glTexImage1D(GLenum target, GLint level, GLint internalFormat,
                   GLsizei width, GLint border,
@@ -21,6 +24,9 @@ void APIENTRY_GL4ES gl4es_glTexImage3D(GLenum target, GLint level, GLint interna
 void APIENTRY_GL4ES gl4es_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
                      GLsizei width, GLsizei height, GLenum format, GLenum type,
                      const GLvoid *data);
+void gl4es_glTexSubImage2D_real(GLenum target, GLint level, GLint xoffset, GLint yoffset,
+                     GLsizei width, GLsizei height, GLenum format, GLenum type,
+                     const GLvoid *data);
                      
 void APIENTRY_GL4ES gl4es_glTexSubImage1D(GLenum target, GLint level, GLint xoffset,
                      GLsizei width, GLenum format, GLenum type,
@@ -31,10 +37,14 @@ void APIENTRY_GL4ES gl4es_glTexSubImage3D(GLenum target, GLint level, GLint xoff
                      GLenum type, const GLvoid *data);
 
 void APIENTRY_GL4ES gl4es_glBindTexture(GLenum target, GLuint texture);
+void gl4es_glBindTexture_real(GLenum target, GLuint texture);
 void gl4es_glGenTextures(GLsizei n, GLuint *textures, bool fpe_action, GLuint *real_textures);
+void gl4es_glGenTextures_real(GLsizei n, GLuint *textures, bool fpe_action, GLuint *real_textures);
 void APIENTRY_GL4ES gl4es_glDeleteTextures(GLsizei n, const GLuint * textures);
 void APIENTRY_GL4ES gl4es_glTexParameteri(GLenum target, GLenum pname, GLint param);
+void gl4es_glTexParameteri_real(GLenum target, GLenum pname, GLint param);
 void APIENTRY_GL4ES gl4es_glTexParameterf(GLenum target, GLenum pname, GLfloat param);
+void gl4es_glTexParameterf_real(GLenum target, GLenum pname, GLfloat param);
 GLboolean APIENTRY_GL4ES gl4es_glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences);
 void APIENTRY_GL4ES gl4es_glGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, GLint *params);
 void APIENTRY_GL4ES gl4es_glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, GLvoid * img);
@@ -248,6 +258,7 @@ GLenum minmag_float(GLenum filt);
 GLboolean isDXTc(GLenum format);
 
 void realize_bound(int TMU, GLenum target);
+void realize_bound_real(int TMU, GLenum target);
 void realize_1texture(GLenum target, int TMU, gltexture_t* tex, glsampler_t* sampler);
 void realize_1texture_real(GLenum target, int TMU, gltexture_t* tex, glsampler_t* sampler);
 void realize_textures(int drawing);

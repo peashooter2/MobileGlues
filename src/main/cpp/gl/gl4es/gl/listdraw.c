@@ -565,7 +565,7 @@ void draw_renderlist(renderlist_t *list) {
                 }
                 gl4es_gles_glColorPointer(4, GL_FLOAT, 0, list->final_colors);
             } else {
-//SHUT_LOGD("MobileGlues-gl4es: colors=%f, %f, %f, %f / %f, %f, %f, %f\n", list->color[0],list->color[1],list->color[2],list->color[3], list->color[4],list->color[5],list->color[6],list->color[7]);
+SHUT_LOGD("MobileGlues-gl4es: colors=%f, %f, %f, %f / %f, %f, %f, %f\n", list->color[0],list->color[1],list->color[2],list->color[3], list->color[4],list->color[5],list->color[6],list->color[7]);
                 gl4es_gles_glColorPointer(4, GL_FLOAT, list->color_stride, list->color);
             }
         } else {
@@ -684,7 +684,7 @@ void draw_renderlist(renderlist_t *list) {
                 if (!IS_TEX2D(glstate->enable.texture[a]) && (IS_ANYTEX(glstate->enable.texture[a]))) {
                     TEXTURE(a);
                     gl4es_glActiveTexture(GL_TEXTURE0+a);
-                    realize_active();
+                    realize_active_real();
                     gl4es_gles_glEnable(GL_TEXTURE_2D);
                 }
             }
@@ -765,7 +765,7 @@ void draw_renderlist(renderlist_t *list) {
                         bindBuffer_real(GL_ELEMENT_ARRAY_BUFFER, list->vbo_indices);
                         vbo_indices = 1;
                     } else
-                        realize_bufferIndex();
+                        realize_bufferIndex_real();
                     
                     if(list->instanceCount==1)
                         gl4es_gles_glDrawElements(mode, list->ilen, GL_UNSIGNED_SHORT, vbo_indices?NULL:indices);

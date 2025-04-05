@@ -219,7 +219,7 @@ static void proxy_glEnable(GLenum cap, bool enable, void (APIENTRY_GLES *next)(G
             if(glstate->fpe_state)
                 fpe_changetex(glstate->texture.active);
             else {
-                realize_active();
+                realize_active_real();
                 next(cap);
             }
             break;
@@ -253,13 +253,13 @@ static void proxy_glEnable(GLenum cap, bool enable, void (APIENTRY_GLES *next)(G
             if(glstate->fpe_state)
                 fpe_changetex(glstate->texture.active);
             else {
-                realize_active();
+                realize_active_real();
                 next(cap);
             }
             break;
 
         
-        default: errorGL(); FLUSH_BEGINEND; realize_active(); next(cap); break;
+        default: errorGL(); FLUSH_BEGINEND; realize_active_real(); next(cap); break;
     }
     #undef proxy_GO
     #undef GO

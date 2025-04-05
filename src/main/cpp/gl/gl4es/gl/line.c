@@ -42,32 +42,32 @@ void APIENTRY_GL4ES gl4es_glLineStipple(GLuint factor, GLushort pattern) {
         GLuint old_tex = glstate->texture.bound[0][ENABLED_TEX2D]->texture;
         // create / update stipple texture
         if (! glstate->linestipple.texture) {
-            gl4es_glGenTextures(1, &glstate->linestipple.texture, 1, 0);
-            gl4es_glBindTexture(GL_TEXTURE_2D, glstate->linestipple.texture);
+            gl4es_glGenTextures_real(1, &glstate->linestipple.texture, 1, 0);
+            gl4es_glBindTexture_real(GL_TEXTURE_2D, glstate->linestipple.texture);
             gl4es_glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            gl4es_glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,
+            gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            gl4es_glTexImage2D_real(GL_TEXTURE_2D, 0, GL_ALPHA,
                 16, 1, 0, GL_ALPHA, GL_UNSIGNED_BYTE, glstate->linestipple.data);
         } else {
-            gl4es_glBindTexture(GL_TEXTURE_2D, glstate->linestipple.texture);
-            gl4es_glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 16, 1, 
+            gl4es_glBindTexture_real(GL_TEXTURE_2D, glstate->linestipple.texture);
+            gl4es_glTexSubImage2D_real(GL_TEXTURE_2D, 0, 0, 0, 16, 1, 
                 GL_ALPHA, GL_UNSIGNED_BYTE, glstate->linestipple.data);
         }
         // "Pop" texture 0 binding
-        gl4es_glBindTexture(GL_TEXTURE_2D, old_tex);
+        gl4es_glBindTexture_real(GL_TEXTURE_2D, old_tex);
         if(old_act)
             gl4es_glActiveTexture(GL_TEXTURE0+old_act);
-        // all done
+       // all done
         noerrorShim();
     }
 }
 AliasExport(void,glLineStipple,,(GLuint factor, GLushort pattern));
 
 void bind_stipple_tex() {
-    gl4es_glBindTexture(GL_TEXTURE_2D, glstate->linestipple.texture);
+    gl4es_glBindTexture_real(GL_TEXTURE_2D, glstate->linestipple.texture);
 }
 
 GLfloat *gen_stipple_tex_coords(GLfloat *vert, GLushort *sindices, modeinit_t *modes, int stride, int length, GLfloat* noalloctex) {

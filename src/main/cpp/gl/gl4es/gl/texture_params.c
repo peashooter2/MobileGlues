@@ -194,6 +194,50 @@ void APIENTRY_GL4ES gl4es_glBindTexture(GLenum target, GLuint texture) {
         tex = gl4es_getTexture(target, texture,0,0);
         if (glstate->texture.bound[glstate->texture.active][itarget] == tex)
             return;
+
+        FLUSH_BEGINEND;
+        tex_changed = glstate->texture.active+1;
+        glstate->texture.bound[glstate->texture.active][itarget] = tex;
+
+        LOAD_GLES(glBindTexture);
+        switch(target) {
+            // cube map are immediately bound, other are defered and will be applied with realize_bound or realize_textures
+            case GL_TEXTURE_CUBE_MAP:
+            case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+            case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+            case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+            case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+            case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+            case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+            {} //STUB of gl4es_gles_glBindTexture(target, tex?tex->glname:0);
+                break;
+            case GL_TEXTURE_1D:
+            case GL_TEXTURE_2D:
+            case GL_TEXTURE_3D:
+            case GL_TEXTURE_RECTANGLE_ARB:
+                if (glstate->bound_changed < glstate->texture.active+1)
+                    glstate->bound_changed = glstate->texture.active+1;
+                if (glstate->fpe_state && glstate->fpe_bound_changed < glstate->texture.active+1)
+                    glstate->fpe_bound_changed = glstate->texture.active+1;
+                break;
+        }
+    }
+}
+void gl4es_glBindTexture_real(GLenum target, GLuint texture) {
+    noerrorShim();
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glBindTexture(%s, %u), active=%i, client=%i, list.active=%p (compiling=%d, pending=%d)\n", PrintEnum(target), texture, glstate->texture.active, glstate->texture.client, glstate->list.active, glstate->list.compiling, glstate->list.pending);)
+    if ((target!=GL_PROXY_TEXTURE_2D) && glstate->list.compiling && glstate->list.active && !glstate->list.pending) {
+        // check if already a texture binded, if yes, create a new list
+        NewStage(glstate->list.active, STAGE_BINDTEX);
+        rlBindTexture(glstate->list.active, target, texture);
+    } else {
+        int tex_changed = 1;
+        gltexture_t *tex = NULL;
+        const GLuint itarget = what_target(target);
+
+        tex = gl4es_getTexture(target, texture,0,0);
+        if (glstate->texture.bound[glstate->texture.active][itarget] == tex)
+            return;
         
         FLUSH_BEGINEND;
         tex_changed = glstate->texture.active+1;
@@ -209,7 +253,7 @@ void APIENTRY_GL4ES gl4es_glBindTexture(GLenum target, GLuint texture) {
             case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
             case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
             case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
-                {} //STUB of gl4es_gles_glBindTexture(target, tex?tex->glname:0);
+                gl4es_gles_glBindTexture(target, tex?tex->glname:0);
                 break;
             case GL_TEXTURE_1D:
             case GL_TEXTURE_2D:
@@ -355,9 +399,125 @@ void APIENTRY_GL4ES gl4es_glTexParameterfv(GLenum target, GLenum pname, const GL
 void APIENTRY_GL4ES gl4es_glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
     gl4es_glTexParameterfv(target, pname, &param);
 }
+void gl4es_glTexParameterf_real(GLenum target, GLenum pname, GLfloat param) {
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), params[0], PrintEnum(params[0]));)
+    GLfloat* params = &param;
+    if(!glstate->list.pending) {
+        PUSH_IF_COMPILING(glTexParameterfv);
+    }
+    noerrorShim();
+    const GLint itarget = what_target(target);
+    const GLuint rtarget = gl4es_map_tex_target(target);
+    gltexture_t *texture = glstate->texture.bound[glstate->texture.active][itarget];
+    if(!samplerParameterfv(&texture->sampler, pname, params)) {
+        LOAD_GLES(glTexParameterfv);
+        switch (pname) {
+            case GL_TEXTURE_MAX_LEVEL:
+                if (texture)
+                    texture->max_level = param;
+                return;            // not on GLES
+            case GL_TEXTURE_BASE_LEVEL:
+                texture->base_level = param;
+                return;            // not on GLES
+            case GL_TEXTURE_LOD_BIAS:
+                return;            // not on GLES
+            case GL_GENERATE_MIPMAP:
+                if(globals4es.automipmap==3)
+                    return; // no mipmap, so no need to generate any
+                if(texture->mipmap_auto == ((param)?1:0))
+                    return; // same value...
+                texture->mipmap_auto = (param)?1:0;
+                if(hardext.esversion>1) {
+                    /*if(texture->valid) {
+                        // force regeneration, if possible
+                        FLUSH_BEGINEND;
+                        realize_bound(glstate->texture.active, target);
+                        LOAD_GLES2_OR_OES(glGenerateMipmap);
+                        gl4es_glGenerateMipmap(rtarget);
+                    }*/
+                    return;
+                }
+                break;  // fallback to calling actual glTexParameteri
+            case GL_TEXTURE_MAX_ANISOTROPY:
+                if(!hardext.aniso) {
+                    errorShim(GL_INVALID_ENUM);
+                    return;
+                }
+                if(param<0){
+                    errorShim(GL_INVALID_VALUE);
+                    return;
+                }
+                if(param>hardext.aniso) param=hardext.aniso;
+                texture->aniso = param;
+                break;
+        }
+        FLUSH_BEGINEND;
+        realize_bound_real(glstate->texture.active, target);
+        gl4es_gles_glTexParameterfv(rtarget, pname, params);
+        errorGL();
+    }
+}
 void APIENTRY_GL4ES gl4es_glTexParameteri(GLenum target, GLenum pname, GLint param) {
     GLfloat fparam = param;
     gl4es_glTexParameterfv(target, pname, &fparam);
+}
+void gl4es_glTexParameteri_real(GLenum target, GLenum pname, GLint param) {
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), params[0], PrintEnum(params[0]));)
+    if(!glstate->list.pending) {
+        GLfloat *params = &param;
+        PUSH_IF_COMPILING(glTexParameterfv);
+    }
+    noerrorShim();
+    const GLint itarget = what_target(target);
+    const GLuint rtarget = gl4es_map_tex_target(target);
+    gltexture_t *texture = glstate->texture.bound[glstate->texture.active][itarget];
+    if(!samplerParameterfv(&texture->sampler, pname, &param)) {
+        LOAD_GLES(glTexParameterfv);
+        switch (pname) {
+            case GL_TEXTURE_MAX_LEVEL:
+                if (texture)
+                    texture->max_level = param;
+                return;            // not on GLES
+            case GL_TEXTURE_BASE_LEVEL:
+                texture->base_level = param;
+                return;            // not on GLES
+            case GL_TEXTURE_LOD_BIAS:
+                return;            // not on GLES
+            case GL_GENERATE_MIPMAP:
+                if(globals4es.automipmap==3)
+                    return; // no mipmap, so no need to generate any
+                if(texture->mipmap_auto == ((param)?1:0))
+                    return; // same value...
+                texture->mipmap_auto = (param)?1:0;
+                if(hardext.esversion>1) {
+                    /*if(texture->valid) {
+                        // force regeneration, if possible
+                        FLUSH_BEGINEND;
+                        realize_bound(glstate->texture.active, target);
+                        LOAD_GLES2_OR_OES(glGenerateMipmap);
+                        gl4es_glGenerateMipmap(rtarget);
+                    }*/
+                    return;
+                }
+                break;  // fallback to calling actual glTexParameteri
+            case GL_TEXTURE_MAX_ANISOTROPY:
+                if(!hardext.aniso) {
+                    errorShim(GL_INVALID_ENUM);
+                    return;
+                }
+                if(param<0){
+                    errorShim(GL_INVALID_VALUE);
+                    return;
+                }
+                if(param>hardext.aniso) param=hardext.aniso;
+                texture->aniso = param;
+                break;
+        }
+        FLUSH_BEGINEND;
+        realize_bound_real(glstate->texture.active, target);
+        gl4es_gles_glTexParameterfv(rtarget, pname, &param);
+        errorGL();
+    }
 }
 
 void APIENTRY_GL4ES gl4es_glTexParameteriv(GLenum target, GLenum pname, const GLint * params) {
@@ -445,6 +605,58 @@ void gl4es_glGenTextures(GLsizei n, GLuint *textures, bool fpe_action, GLuint *r
         gl4es_gles_glGenTextures(n, textures);
     }
     {} //STUB of gl4es_gles_glG enTextures(n, textures);
+    errorGL();
+    // now, add all the textures to the list
+    int ret;
+    khint_t k;
+    khash_t(tex) *list = glstate->texture.list;
+    
+    for (int i=0; i<n; i++) {
+        k = kh_get(tex, list, textures[i]);
+        DBG(SHUT_LOGD("MobileGlues-gl4es:  -> textures[%d] = %u\n", i, textures[i]);)
+        gltexture_t *tex = NULL;
+        if (k == kh_end(list)){
+            k = kh_put(tex, list, textures[i], &ret);
+            tex = kh_value(list, k) = malloc(sizeof(gltexture_t));
+            memset(tex, 0, sizeof(gltexture_t));
+            tex->texture = textures[i];
+            tex->glname = textures[i];
+            tex->adjustxy[0] = tex->adjustxy[1] = 1.f;
+            tex->mipmap_auto = (globals4es.automipmap==1);
+            tex->mipmap_need = (globals4es.automipmap==1)?1:0;
+            tex->streamingID = -1;
+            tex->base_level = -1;
+            tex->max_level = -1;
+            tex->alpha = true;
+            init_sampler(&tex->sampler);
+            tex->fpe_format = FPE_TEX_RGBA;
+            tex->format = GL_RGBA;
+            tex->type = GL_UNSIGNED_BYTE;
+            tex->inter_format = GL_RGBA;
+            tex->inter_type = GL_UNSIGNED_BYTE;
+        } else {
+            tex = kh_value(list, k);
+            // in case of no delete here...
+            if (tex->glname==0)
+                tex->glname = tex->texture;
+        }
+    }
+}
+void gl4es_glGenTextures_real(GLsizei n, GLuint *textures, bool fpe_action, GLuint *real_textures) {
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glGenTextures(%d, %p)\n", n, textures);)
+    if (n<=0) 
+        return;
+    FLUSH_BEGINEND;
+    LOAD_GLES(glGenTextures);
+    if (!fpe_action) {
+        if (real_textures)
+            for (int i=0; i<n; i++) {
+                textures[i] = real_textures[i];
+            }
+    } else {
+        gl4es_gles_glGenTextures(n, textures);
+    }
+    gl4es_gles_glGenTextures(n, textures);
     errorGL();
     // now, add all the textures to the list
     int ret;
@@ -757,6 +969,53 @@ void realize_bound(int TMU, GLenum target) {
             if(glstate->actual_tex2d[TMU] != t) {
                 realize_active();
                 {} //STUB of gl4es_gles_glBindTexture(GL_TEXTURE_2D, t);
+                glstate->actual_tex2d[TMU] = t;
+                if (glstate->bound_changed < TMU+1)
+                    glstate->bound_changed = TMU+1;
+            }
+            break;
+    }
+    // all done
+    if (glstate->fpe_state && glstate->fpe_bound_changed < TMU+1)
+    glstate->fpe_bound_changed = TMU+1;
+}
+void realize_bound_real(int TMU, GLenum target) {
+    realize_active_real();
+    LOAD_GLES(glBindTexture);
+    gltexture_t *tex = glstate->texture.bound[TMU][what_target(target)];
+    GLuint t = tex->glname;
+    DBG(SHUT_LOGD("MobileGlues-gl4es: realize_bound(%d, %s), glsate->actual_tex2d[%d]=%u / %u\n", TMU, PrintEnum(target), TMU, glstate->actual_tex2d[TMU], t);)
+#ifdef TEXSTREAM
+    LOAD_GLES(glEnable);
+    LOAD_GLES(glDisable);
+#endif
+    switch (target) {
+        case GL_TEXTURE_1D:
+        case GL_TEXTURE_2D:
+        case GL_TEXTURE_3D:
+        case GL_TEXTURE_RECTANGLE_ARB:
+#ifdef TEXSTREAM
+            if(glstate->bound_stream[TMU]) {
+                realize_active();
+                gl4es_gles_glDisable(GL_TEXTURE_STREAM_IMG);
+                DeactivateStreaming();
+                glstate->bound_stream[TMU] = 0;
+            }
+            int streamingID = tex->streamingID;
+            if (globals4es.texstream && (streamingID>-1)) {
+                if(hardext.esversion<2) gl4es_gles_glDisable(GL_TEXTURE_2D);
+                ActivateStreaming(streamingID);
+                glstate->bound_stream[TMU] = 1;
+                glstate->actual_tex2d[TMU] = t;
+                if (hardext.esversion<2)
+                    gl4es_gles_glEnable(GL_TEXTURE_STREAM_IMG);
+                if (glstate->bound_changed < TMU+1)
+                    glstate->bound_changed = TMU+1;
+            } else
+#endif
+            if(glstate->actual_tex2d[TMU] != t) {
+                realize_active_real();
+                gl4es_gles_glBindTexture(GL_TEXTURE_2D, t);
                 glstate->actual_tex2d[TMU] = t;
                 if (glstate->bound_changed < TMU+1)
                     glstate->bound_changed = TMU+1;

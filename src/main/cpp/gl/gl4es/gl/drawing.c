@@ -286,7 +286,7 @@ GLuint len_indices(const GLushort *sindices, const GLuint *iindices, GLsizei cou
 
 void glDrawElementsCommon(GLenum mode, GLint first, GLsizei count, GLuint len, const GLushort *sindices, const GLuint *iindices, int instancecount) {
     // TODO: Handle the conflict between Core Profile with Compatibility Profile
-    LOGD("glstate->target_program: %d",glstate->target_program)
+    DBG(LOGD("glstate->target_program: %d",glstate->target_program))
     if (glstate->target_program) {
         return;
     }
@@ -396,7 +396,7 @@ if(count>500000) return;
                 if (itarget>=0) {
                     if (!IS_TEX2D(glstate->enable.texture[aa]) && (IS_ANYTEX(glstate->enable.texture[aa]))) {
                         gl4es_glActiveTexture(GL_TEXTURE0+aa);
-                        realize_active();
+                        realize_active_real();
                         gl4es_gles_glEnable(GL_TEXTURE_2D);
                     }
                     if (p->enabled) {

@@ -588,7 +588,7 @@ void APIENTRY_GL4ES gl4es_glTexEnvf(GLenum target, GLenum pname, GLfloat param) 
     errorGL();
     if(hardext.esversion==1) {
         LOAD_GLES2(glTexEnvf);
-        realize_active();
+        realize_active_real();
         gl4es_gles_glTexEnvf(target, pname, param);
     }
 }
@@ -619,7 +619,7 @@ void APIENTRY_GL4ES gl4es_glTexEnvfv(GLenum target, GLenum pname, const GLfloat 
         errorGL();
         if(hardext.esversion==1) {
             LOAD_GLES2(glTexEnvfv);
-            realize_active();
+            realize_active_real();
             gl4es_gles_glTexEnvfv(target, pname, param);
         }
     } else

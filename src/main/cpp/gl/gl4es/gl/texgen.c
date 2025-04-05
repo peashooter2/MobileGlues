@@ -318,7 +318,7 @@ void gen_tex_coords(GLfloat *verts, GLfloat *norm, GLfloat **coords, GLint count
             // setup reflection map!
             GLuint old_tex=glstate->texture.active;
             if (old_tex!=texture) gl4es_glActiveTexture(GL_TEXTURE0 + texture);
-            realize_active();
+            realize_active_real();
             LOAD_GLES_OES(glTexGeni);
             LOAD_GLES_OES(glTexGenfv);
             LOAD_GLES(glEnable);
@@ -354,7 +354,7 @@ void gen_tex_coords(GLfloat *verts, GLfloat *norm, GLfloat **coords, GLint count
         // setup normal map!
         GLuint old_tex=glstate->texture.active;
         if (old_tex!=texture) gl4es_glActiveTexture(GL_TEXTURE0 + texture);
-        realize_active();
+        realize_active_real();
         LOAD_GLES_OES(glTexGeni);
         LOAD_GLES_OES(glTexGenfv);
         LOAD_GLES(glEnable);
