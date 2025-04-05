@@ -2321,7 +2321,7 @@ void APIENTRY_GL4ES gl4es_glTexSubImage2D(GLenum target, GLint level, GLint xoff
     }*/
     } else {
         errorGL();
-        gl4es_gles_glTexSubImage2D(rtarget, level, xoffset, yoffset,width, height, format, type, pixels);
+        {} //STUB of glTexSubImage2D(rtarget, level, xoffset, yoffset,width, height, format, type, pixels);
         DBG(CheckGLError(1);)
         // check if base_level is set... and calculate lower level mipmap
         if(bound->base_level == level && !(bound->max_level==level && level==0)) {
