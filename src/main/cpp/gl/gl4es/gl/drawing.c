@@ -284,8 +284,12 @@ GLuint len_indices(const GLushort *sindices, const GLuint *iindices, GLsizei cou
     return len+1;  // length is max(indices) + 1 !
 }
 
-// TODO: only fpe calls?
-static void glDrawElementsCommon(GLenum mode, GLint first, GLsizei count, GLuint len, const GLushort *sindices, const GLuint *iindices, int instancecount) {
+void glDrawElementsCommon(GLenum mode, GLint first, GLsizei count, GLuint len, const GLushort *sindices, const GLuint *iindices, int instancecount) {
+    // TODO: Handle the conflict between Core Profile with Compatibility Profile
+    LOGD("glstate->target_program: %d",glstate->target_program)
+    if (glstate->target_program) {
+        return;
+    }
     if (glstate->raster.bm_drawing)
         bitmap_flush();
     DBG(SHUT_LOGD("MobileGlues-gl4es: glDrawElementsCommon(%s, %d, %d, %d, %p, %p, %d)\n", PrintEnum(mode), first, count, len, sindices, iindices, instancecount);)

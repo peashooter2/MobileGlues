@@ -823,6 +823,7 @@ void APIENTRY_GL4ES gl4es_glLinkProgram(GLuint program) {
 void APIENTRY_GL4ES gl4es_glUseProgram(GLuint program) {
     DBG(SHUT_LOGD("MobileGlues-gl4es: glUseProgram(%d) old=%d\n", program, glstate->glsl->program);)
     PUSH_IF_COMPILING(glUseProgram);
+    glstate->target_program = program;
     if(program==0) {
         glstate->glsl->program=0;
         glstate->glsl->glprogram=NULL;

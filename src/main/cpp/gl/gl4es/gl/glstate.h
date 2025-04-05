@@ -132,6 +132,7 @@ struct glstate_s {
     GLenum              blenddfactoralpha;
     GLenum              blendeqrgb;
     GLenum              blendeqalpha;
+    GLuint              target_program;
 }; // glstate_t defined in oldprogram.h
 
 
