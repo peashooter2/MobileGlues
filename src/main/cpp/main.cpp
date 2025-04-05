@@ -13,6 +13,7 @@
 #include "gl/envvars.h"
 #include "gl/log.h"
 #include "config/settings.h"
+#include "gl4esinit.h"
 
 #define DEBUG 0
 
@@ -73,6 +74,7 @@ void proc_init() {
     init_settings();
 
     load_libs();
+    initialize_gl4es();
     init_target_egl();
     init_target_gles();
 

@@ -37,6 +37,10 @@ GLAPI GLAPIENTRY void glReadBuffer(GLenum src);
 
 GLAPI GLAPIENTRY GLenum glCheckFramebufferStatus(GLenum target);
 
+GLAPI GLAPIENTRY void glGenFramebuffers(GLsizei n, GLuint *framebuffers);
+
+GLAPI GLAPIENTRY void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers);
+
 #ifdef __cplusplus
 }
 #endif

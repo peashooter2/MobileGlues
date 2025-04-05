@@ -30,4 +30,4 @@ GLAPI GLAPIENTRY void glGetShaderiv(GLuint shader, GLenum pname, GLint *params);
 #endif
 
 
-#endif //FOLD_CRAFT_LAUNCHER_GL_LOADER_H
+#endif //MOBILEGLUES_SHADER_H

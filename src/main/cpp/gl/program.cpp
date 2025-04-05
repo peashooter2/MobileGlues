@@ -33,6 +33,8 @@ char* updateLayoutLocation(const char* esslSource, GLuint color, const char* nam
 
 void glBindFragDataLocation(GLuint program, GLuint color, const GLchar *name) {
     LOG()
+    GET_GL4ES_FUNC(void, glBindFragDataLocation, GLuint program, GLuint color, const GLchar *name)
+    CALL_GL4ES_FUNC(glBindFragDataLocation, program, color, name)
     LOG_D("glBindFragDataLocation(%d, %d, %s)", program, color, name)
 //    if (g_gles_caps.GL_EXT_blend_func_extended) {
 //        GLES.glBindFragDataLocationEXT(program, color, name);
@@ -88,7 +90,8 @@ void glBindFragDataLocation(GLuint program, GLuint color, const GLchar *name) {
 
 void glLinkProgram(GLuint program) {
     LOG()
-
+    GET_GL4ES_FUNC(void, glLinkProgram, GLuint program)
+    CALL_GL4ES_FUNC(glLinkProgram, program)
     LOG_D("glLinkProgram(%d)", program)
     if (!shaderInfo.converted.empty() && shaderInfo.frag_data_changed) {
         GLES.glShaderSource(shaderInfo.id, 1, (const GLchar * const*) &shaderInfo.frag_data_changed_converted, nullptr);
@@ -115,6 +118,8 @@ void glLinkProgram(GLuint program) {
 
 void glGetProgramiv(GLuint program, GLenum pname, GLint *params) {
     LOG()
+    GET_GL4ES_FUNC(void, glGetProgramiv, GLuint program, GLenum pname, GLint *params)
+    CALL_GL4ES_FUNC(glGetProgramiv, program, pname, params)
     GLES.glGetProgramiv(program, pname, params);
     if(global_settings.ignore_error >= 1 && (pname == GL_LINK_STATUS || pname == GL_VALIDATE_STATUS) && !*params) {
         GLchar infoLog[512];

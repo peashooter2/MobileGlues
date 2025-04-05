@@ -57,6 +57,8 @@ GLAPI GLAPIENTRY void glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y
 
 GLAPI GLAPIENTRY void glUniform1i(GLint location, GLint v0);
 
+GLAPI GLAPIENTRY void glDrawArrays(GLenum mode, GLint first, GLsizei count);
+
 #ifdef __cplusplus
 }
 #endif

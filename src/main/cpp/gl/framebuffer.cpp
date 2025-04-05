@@ -39,6 +39,8 @@ void rebind_framebuffer(GLenum old_attachment, GLenum target_attachment) {
 
 void glBindFramebuffer(GLenum target, GLuint framebuffer) {
     LOG()
+    GET_GL4ES_FUNC(void, glBindFramebuffer, GLenum target, GLuint framebuffer)
+    CALL_GL4ES_FUNC(glBindFramebuffer, target, framebuffer)
 
     INIT_CHECK_GL_ERROR
 
@@ -76,6 +78,8 @@ void glBindFramebuffer(GLenum target, GLuint framebuffer) {
 
 void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) {
     LOG()
+    GET_GL4ES_FUNC(void, glFramebufferTexture2D, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+    CALL_GL4ES_FUNC(glFramebufferTexture2D, target, attachment, textarget, texture, level)
 
     LOG_D("glFramebufferTexture2D(0x%x, 0x%x, 0x%x, %d, %d)", target, attachment, textarget, texture, level)
 
@@ -102,6 +106,8 @@ void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, 
 
 void glDrawBuffer(GLenum buffer) {
     LOG()
+    GET_GL4ES_FUNC(void, glDrawBuffer, GLenum buffer)
+    CALL_GL4ES_FUNC(glDrawBuffer, buffer)
 
     GLint currentFBO;
     GLES.glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFBO);
@@ -141,6 +147,8 @@ void glDrawBuffer(GLenum buffer) {
 
 void glDrawBuffers(GLsizei n, const GLenum *bufs) {
     LOG()
+    GET_GL4ES_FUNC(void, glDrawBuffers, GLsizei n, const GLenum* bufs)
+    CALL_GL4ES_FUNC(glDrawBuffers, n, bufs)
 
     LOG_D("glDrawBuffers(%d, %p), [0]=0x%x", n, bufs, n ? bufs[0] : 0)
 
@@ -163,6 +171,9 @@ void glDrawBuffers(GLsizei n, const GLenum *bufs) {
 
 void glReadBuffer(GLenum src) {
     LOG()
+    GET_GL4ES_FUNC(void, glReadBuffer, GLenum src)
+    CALL_GL4ES_FUNC(glReadBuffer, src)
+
     LOG_D("glReadBuffer, src = %s", glEnumToString(src))
 
     GLES.glReadBuffer(src);
@@ -170,6 +181,9 @@ void glReadBuffer(GLenum src) {
 
 GLenum glCheckFramebufferStatus(GLenum target) {
     LOG()
+    GET_GL4ES_FUNC(GLenum, glCheckFramebufferStatus, GLenum target)
+    CALL_GL4ES_FUNC(glCheckFramebufferStatus, target)
+
     GLenum status = GLES.glCheckFramebufferStatus(target);
     if(global_settings.ignore_error >= 2 && status != GL_FRAMEBUFFER_COMPLETE) {
         LOG_W_FORCE("Framebuffer %d isn't GL_FRAMEBUFFER_COMPLETE: %d", target, status)
@@ -177,5 +191,21 @@ GLenum glCheckFramebufferStatus(GLenum target) {
         return GL_FRAMEBUFFER_COMPLETE;
     }
     return status;
+    CHECK_GL_ERROR
+}
+
+void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers) {
+    LOG()
+    LOG_D("glGenRenderbuffers(n=%d, renderbuffers=%p)", n, renderbuffers);
+    GLES.glGenRenderbuffers(n, renderbuffers);
+    gl4es_glGenRenderbuffers(n, renderbuffers, renderbuffers);
+    CHECK_GL_ERROR
+}
+
+void glGenFramebuffers(GLsizei n, GLuint *framebuffers) {
+    LOG()
+    LOG_D("glGenFramebuffers(n=%d, buffers=%p)", n, framebuffers);
+    GLES.glGenFramebuffers(n, framebuffers);
+    gl4es_glGenFramebuffers(n, framebuffers, framebuffers);
     CHECK_GL_ERROR
 }

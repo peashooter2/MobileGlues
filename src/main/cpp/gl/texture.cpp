@@ -24,8 +24,8 @@
 
 int nlevel(int size, int level) {
     if(size) {
-        size>>=level;
-        if(!size) size=1;
+        size >>= level;
+        if(!size) size = 1;
     }
     return size;
 }
@@ -41,57 +41,46 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(type)
                 *type = GL_UNSIGNED_SHORT;
             break;
-
         case GL_DEPTH_COMPONENT24:
             if(type)
                 *type = GL_UNSIGNED_INT;
             break;
-
         case GL_DEPTH_COMPONENT32:
             *internal_format = GL_DEPTH_COMPONENT32F;
             if(type)
                 *type = GL_FLOAT;
             break;
-
         case GL_DEPTH_COMPONENT32F:
             if(type)
                 *type = GL_FLOAT;
             break;
-
         case GL_DEPTH_COMPONENT:
-            // TODO: Add enable_compatible_mode option
             LOG_D("Find GL_DEPTH_COMPONENT: internalFormat: %s, format: %s, type: %s", glEnumToString(*internal_format), glEnumToString(*format), glEnumToString(*type))
             if(type) {
                 *type = GL_UNSIGNED_INT;
             }
             break;
-
         case GL_DEPTH_STENCIL:
             *internal_format = GL_DEPTH32F_STENCIL8;
             if(type)
                 *type = GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
             break;
-
         case GL_RGB10_A2:
             if(type)
                 *type = GL_UNSIGNED_INT_2_10_10_10_REV;
             break;
-
         case GL_RGB5_A1:
             if(type)
                 *type = GL_UNSIGNED_SHORT_5_5_5_1;
             break;
-
         case GL_COMPRESSED_RED_RGTC1:
         case GL_COMPRESSED_RG_RGTC2:
             LOG_E("GL_COMPRESSED_RED_RGTC1 or GL_COMPRESSED_RG_RGTC2 is not supported!")
             break;
-
         case GL_SRGB8:
             if(type)
                 *type = GL_UNSIGNED_BYTE;
             break;
-
         case GL_RGBA32F:
         case GL_RGB32F:
         case GL_RG32F:
@@ -99,19 +88,16 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(type)
                 *type = GL_FLOAT;
             break;
-
         case GL_RGB9_E5:
             if(type)
                 *type = GL_UNSIGNED_INT_5_9_9_9_REV;
             break;
-            
         case GL_R11F_G11F_B10F:
             if(type)
                 *type = GL_UNSIGNED_INT_10F_11F_11F_REV;
             if (format)
                 *format = GL_RGB;
             break;
-
         case GL_RGBA32UI:
         case GL_RGB32UI:
         case GL_RG32UI:
@@ -119,7 +105,6 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(type)
                 *type = GL_UNSIGNED_INT;
             break;
-
         case GL_RGBA32I:
         case GL_RGB32I:
         case GL_RG32I:
@@ -127,7 +112,6 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(type)
                 *type = GL_INT;
             break;
-
         case GL_RGBA16: {
             if (g_gles_caps.GL_EXT_texture_norm16) {
                 if(type)
@@ -145,26 +129,22 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if (format)
                 *format = GL_RGBA;
             break;
-
         case GL_RGBA:
             if(type)
                 *type = GL_UNSIGNED_BYTE;
             if (format)
                 *format = GL_RGBA;
             break;
-            
         case GL_RGBA16F:
         case GL_R16F:
             if(type)
                 *type = GL_HALF_FLOAT;
             break;
-
         case GL_R16:
             *internal_format = GL_R16F;
             if(type)
                 *type = GL_FLOAT;
             break;
-
         case GL_RGB16:
             *internal_format = GL_RGB16F;
             if(type)
@@ -172,14 +152,12 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(format)
                 *format = GL_RGB;
             break;
-            
         case GL_RGB16F:
             if(type)
                 *type = GL_HALF_FLOAT;
             if(format)
                 *format = GL_RGB;
             break;
-
         case GL_RG16:
         case GL_RG16F:
             *internal_format = GL_RG16F;
@@ -188,7 +166,6 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(format)
                 *format = GL_RG;
             break;
-
         case GL_R8:
             if (format)
                 *format = GL_RED;
@@ -201,13 +178,11 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             if(type)
                 *type = GL_UNSIGNED_BYTE;
             break;
-
         case GL_RGB8_SNORM:
         case GL_RGBA8_SNORM:
             if(type)
                 *type = GL_BYTE;
             break;
-
         default:
             if (*internal_format == GL_RGB8) {
                 if (type && *type != GL_UNSIGNED_BYTE)
@@ -216,7 +191,7 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
                     *format = GL_RGB;
             }
             else if (type && *internal_format == GL_RGBA16_SNORM && *type != GL_SHORT) {
-                *type = GL_SHORT; 
+                *type = GL_SHORT;
             }
             break;
     }
@@ -224,65 +199,60 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
 
 void glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexParameterf, GLenum target, GLenum pname, GLfloat param)
+    CALL_GL4ES_FUNC(glTexParameterf, target, pname, param)
     pname = pname_convert(pname);
-    LOG_D("glTexParameterf, target: %d, pname: %d, param: %f",target, pname, param)
+    LOG_D("glTexParameterf, target: %d, pname: %d, param: %f", target, pname, param)
 
     if (pname == GL_TEXTURE_LOD_BIAS_QCOM && !g_gles_caps.GL_QCOM_texture_lod_bias) {
         LOG_D("Does not support GL_QCOM_texture_lod_bias, skipped!")
         return;
     }
 
-    GLES.glTexParameterf(target,pname, param);
+    GLES.glTexParameterf(target, pname, param);
     CHECK_GL_ERROR
 }
 
 void glTexImage1D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid* pixels) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexImage1D, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
+    CALL_GL4ES_FUNC(glTexImage1D, target, level, internalFormat, width, border, format, type, pixels)
     LOG_D("glTexImage1D not implemented!")
     LOG_D("glTexImage1D, target: %d, level: %d, internalFormat: %d, width: %d, border: %d, format: %d, type: %d",
           target, level, internalFormat, width, border, format, type)
     return;
-    internal_convert(reinterpret_cast<GLenum *>(&internalFormat), & type, &format);
-
-    GLenum rtarget = map_tex_target(target);
-    if (rtarget == GL_PROXY_TEXTURE_1D) {
-        int max1 = 4096;
-        GLES.glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max1);
-        set_gl_state_proxy_width(((width << level) > max1) ? 0 : width);
-        set_gl_state_proxy_intformat(internalFormat);
-        return;
-    }
-
+    internal_convert(reinterpret_cast<GLenum *>(&internalFormat), &type, &format);
     CHECK_GL_ERROR
 }
 
-void glTexImage2D(GLenum target, GLint level,GLint internalFormat,GLsizei width, GLsizei height,GLint border, GLenum format, GLenum type,const GLvoid* pixels) {
+void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexImage2D, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
+    CALL_GL4ES_FUNC(glTexImage2D, target, level, internalFormat, width, height, border, format, type, pixels)
     auto& tex = g_textures[bound_texture];
     tex.internal_format = internalFormat;
     GLenum transfer_format = format;
-//    tex.format = format;
-    LOG_D("mg_glTexImage2D,target: %s,level: %d,internalFormat: %s->%s,width: %d,height: %d,border: %d,format: %s,type: %s, pixels: 0x%x",
-          glEnumToString(target),level,glEnumToString(internalFormat),glEnumToString(internalFormat),
-          width,height,border,glEnumToString(format),glEnumToString(type), pixels)
+    LOG_D("mg_glTexImage2D, target: %s, level: %d, internalFormat: %s->%s, width: %d, height: %d, border: %d, format: %s, type: %s, pixels: 0x%x",
+          glEnumToString(target), level, glEnumToString(internalFormat), glEnumToString(internalFormat),
+          width, height, border, glEnumToString(format), glEnumToString(type), pixels)
     internal_convert(reinterpret_cast<GLenum *>(&internalFormat), &type, &format);
-    LOG_D("GLES.glTexImage2D,target: %s,level: %d,internalFormat: %s->%s,width: %d,height: %d,border: %d,format: %s,type: %s, pixels: 0x%x",
-          glEnumToString(target),level,glEnumToString(internalFormat),glEnumToString(internalFormat),
-          width,height,border,glEnumToString(format),glEnumToString(type), pixels)
+    LOG_D("GLES.glTexImage2D, target: %s, level: %d, internalFormat: %s->%s, width: %d, height: %d, border: %d, format: %s, type: %s, pixels: 0x%x",
+          glEnumToString(target), level, glEnumToString(internalFormat), glEnumToString(internalFormat),
+          width, height, border, glEnumToString(format), glEnumToString(type), pixels)
     GLenum rtarget = map_tex_target(target);
     if(rtarget == GL_PROXY_TEXTURE_2D) {
         int max1 = 4096;
         GLES.glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max1);
-        set_gl_state_proxy_width(((width<<level)>max1)?0:width);
-        set_gl_state_proxy_height(((height<<level)>max1)?0:height);
+        set_gl_state_proxy_width(((width << level) > max1)?0:width);
+        set_gl_state_proxy_height(((height << level) > max1)?0:height);
         set_gl_state_proxy_intformat(internalFormat);
         return;
     }
 
     if (transfer_format == GL_BGRA && tex.format != transfer_format && internalFormat == GL_RGBA8
-                    && width <= 128 && height <= 128) {  // xaero has 64x64 tiles...hack here
+        && width <= 128 && height <= 128) {
         LOG_D("Detected GL_BGRA format @ tex = %d, do swizzle", bound_texture)
-        if (tex.swizzle_param[0] == 0) { // assert this as never called glTexParameteri(..., GL_TEXTURE_SWIZZLE_R, ...)
+        if (tex.swizzle_param[0] == 0) {
             tex.swizzle_param[0] = GL_RED;
             tex.swizzle_param[1] = GL_GREEN;
             tex.swizzle_param[2] = GL_BLUE;
@@ -313,7 +283,9 @@ void glTexImage2D(GLenum target, GLint level,GLint internalFormat,GLsizei width,
 
 void glTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid* pixels) {
     LOG()
-    LOG_D("glTexImage3D, target: 0x%x, level: %d, internalFormat: 0x%x, width: 0x%x, height: %d, depth: %d, border: %d, format: 0x%x, type: %d",
+    GET_GL4ES_FUNC(void, glTexImage3D, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
+    CALL_GL4ES_FUNC(glTexImage3D, target, level, internalFormat, width, height, depth, border, format, type, pixels)
+    LOG_D("glTexImage3D, target: %d, level: %d, internalFormat: %d, width: %d, height: %d, depth: %d, border: %d, format: %d, type: %d",
           target, level, internalFormat, width, height, depth, border, format, type)
 
     internal_convert(reinterpret_cast<GLenum *>(&internalFormat), &type, &format);
@@ -324,7 +296,6 @@ void glTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
         GLES.glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max1);
         set_gl_state_proxy_width(((width << level) > max1) ? 0 : width);
         set_gl_state_proxy_height(((height << level) > max1) ? 0 : height);
-        //set_gl_state_proxy_depth(((depth << level) > max1) ? 0 : depth);
         set_gl_state_proxy_intformat(internalFormat);
         return;
     }
@@ -336,21 +307,24 @@ void glTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 
 void glTexStorage1D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexStorage1D, GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width)
+    CALL_GL4ES_FUNC(glTexStorage1D, target, levels, internalFormat, width)
     LOG_D("glTexStorage1D not implemented!")
     LOG_D("glTexStorage1D, target: %d, levels: %d, internalFormat: %d, width: %d",
           target, levels, internalFormat, width)
     return;
-    internal_convert(&internalFormat,nullptr,nullptr);
-
+    internal_convert(&internalFormat, nullptr, nullptr);
     CHECK_GL_ERROR
 }
 
 void glTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexStorage2D, GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height)
+    CALL_GL4ES_FUNC(glTexStorage2D, target, levels, internalFormat, width, height)
     LOG_D("glTexStorage2D, target: %d, levels: %d, internalFormat: %d, width: %d, height: %d",
           target, levels, internalFormat, width, height)
 
-    internal_convert(&internalFormat,nullptr,nullptr);
+    internal_convert(&internalFormat, nullptr, nullptr);
 
     GLES.glTexStorage2D(target, levels, internalFormat, width, height);
 
@@ -361,10 +335,12 @@ void glTexStorage2D(GLenum target, GLsizei levels, GLenum internalFormat, GLsize
 
 void glTexStorage3D(GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexStorage3D, GLenum target, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth)
+    CALL_GL4ES_FUNC(glTexStorage3D, target, levels, internalFormat, width, height, depth)
     LOG_D("glTexStorage3D, target: %d, levels: %d, internalFormat: %d, width: %d, height: %d, depth: %d",
           target, levels, internalFormat, width, height, depth)
 
-    internal_convert(&internalFormat,nullptr,nullptr);
+    internal_convert(&internalFormat, nullptr, nullptr);
 
     GLES.glTexStorage3D(target, levels, internalFormat, width, height, depth);
 
@@ -373,11 +349,12 @@ void glTexStorage3D(GLenum target, GLsizei levels, GLenum internalFormat, GLsize
 
 void glCopyTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLint border) {
     LOG()
+    GET_GL4ES_FUNC(void, glCopyTexImage1D, GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLint border)
+    CALL_GL4ES_FUNC(glCopyTexImage1D, target, level, internalFormat, x, y, width, border)
     LOG_D("glCopyTexImage1D not implemented!")
     LOG_D("glCopyTexImage1D, target: %d, level: %d, internalFormat: %d, x: %d, y: %d, width: %d, border: %d",
           target, level, internalFormat, x, y, width, border)
     return;
-
     CHECK_GL_ERROR
 }
 
@@ -409,7 +386,8 @@ static GLenum get_binding_for_target(GLenum target) {
 
 void glCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) {
     LOG()
-
+    GET_GL4ES_FUNC(void, glCopyTexImage2D, GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
+    CALL_GL4ES_FUNC(glCopyTexImage2D, target, level, internalFormat, x, y, width, height, border)
     INIT_CHECK_GL_ERROR
 
     GLint realInternalFormat;
@@ -468,6 +446,8 @@ void glCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x
 
 void glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) {
     LOG()
+    GET_GL4ES_FUNC(void, glCopyTexSubImage2D, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+    CALL_GL4ES_FUNC(glCopyTexSubImage2D, target, level, xoffset, yoffset, x, y, width, height)
     GLint internalFormat;
     GLES.glGetTexLevelParameteriv(target, level, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
 
@@ -507,7 +487,8 @@ void glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffse
 
 void glRenderbufferStorage(GLenum target, GLenum internalFormat, GLsizei width, GLsizei height) {
     LOG()
-
+    GET_GL4ES_FUNC(void, glRenderbufferStorage, GLenum target, GLenum internalFormat, GLsizei width, GLsizei height)
+    CALL_GL4ES_FUNC(glRenderbufferStorage, target, internalFormat, width, height)
     INIT_CHECK_GL_ERROR_FORCE
 
     CLEAR_GL_ERROR_NO_INIT
@@ -535,7 +516,8 @@ void glRenderbufferStorage(GLenum target, GLenum internalFormat, GLsizei width, 
 
 void glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalFormat, GLsizei width, GLsizei height) {
     LOG()
-
+    GET_GL4ES_FUNC(void, glRenderbufferStorageMultisample, GLenum target, GLsizei samples, GLenum internalFormat, GLsizei width, GLsizei height)
+    CALL_GL4ES_FUNC(glRenderbufferStorageMultisample, target, samples, internalFormat, width, height)
     INIT_CHECK_GL_ERROR_FORCE
 
     CLEAR_GL_ERROR_NO_INIT
@@ -548,7 +530,6 @@ void glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum int
     else
         internalFormat = GL_DEPTH_COMPONENT24;
 
-
     LOG_D("glRenderbufferStorageMultisample, target: %d, samples: %d, internalFormat: %d, width: %d, height: %d",
           target, samples, internalFormat, width, height)
 
@@ -557,11 +538,13 @@ void glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum int
     CHECK_GL_ERROR_NO_INIT
 }
 
-void glGetTexLevelParameterfv(GLenum target, GLint level,GLenum pname, GLfloat *params) {
+void glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GLfloat *params) {
     LOG()
-    LOG_D("glGetTexLevelParameterfv,target: %d, level: %d, pname: %d",target,level,pname)
+    GET_GL4ES_FUNC(void, glGetTexLevelParameterfv, GLenum target, GLint level, GLenum pname, GLfloat *params)
+    CALL_GL4ES_FUNC(glGetTexLevelParameterfv, target, level, pname, params)
+    LOG_D("glGetTexLevelParameterfv, target: %d, level: %d, pname: %d", target, level, pname)
     GLenum rtarget = map_tex_target(target);
-    if (rtarget==GL_PROXY_TEXTURE_2D) {
+    if (rtarget == GL_PROXY_TEXTURE_2D) {
         switch (pname) {
             case GL_TEXTURE_WIDTH:
                 (*params) = (float)nlevel(gl_state->proxy_width, level);
@@ -576,15 +559,17 @@ void glGetTexLevelParameterfv(GLenum target, GLint level,GLenum pname, GLfloat *
                 return;
         }
     }
-    GLES.glGetTexLevelParameterfv(target,level,pname,params);
+    GLES.glGetTexLevelParameterfv(target, level, pname, params);
     CHECK_GL_ERROR
 }
 
-void glGetTexLevelParameteriv(GLenum target, GLint level,GLenum pname, GLint *params) {
+void glGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, GLint *params) {
     LOG()
-    LOG_D("glGetTexLevelParameteriv,target: %s, level: %d, pname: %s",glEnumToString(target),level,glEnumToString(pname))
+    GET_GL4ES_FUNC(void, glGetTexLevelParameteriv, GLenum target, GLint level, GLenum pname, GLint *params)
+    CALL_GL4ES_FUNC(glGetTexLevelParameteriv, target, level, pname, params)
+    LOG_D("glGetTexLevelParameteriv, target: %s, level: %d, pname: %s", glEnumToString(target), level, glEnumToString(pname))
     GLenum rtarget = map_tex_target(target);
-    if (rtarget==GL_PROXY_TEXTURE_2D) {
+    if (rtarget == GL_PROXY_TEXTURE_2D) {
         switch (pname) {
             case GL_TEXTURE_WIDTH:
                 (*params) = nlevel(gl_state->proxy_width, level);
@@ -599,25 +584,26 @@ void glGetTexLevelParameteriv(GLenum target, GLint level,GLenum pname, GLint *pa
                 return;
         }
     }
-    LOG_D("es.glGetTexLevelParameteriv,target: %s, level: %d, pname: %s",glEnumToString(target),level,glEnumToString(pname))
-    GLES.glGetTexLevelParameteriv(target,level,pname,params);
+    LOG_D("es.glGetTexLevelParameteriv, target: %s, level: %d, pname: %s", glEnumToString(target), level, glEnumToString(pname))
+    GLES.glGetTexLevelParameteriv(target, level, pname, params);
     CHECK_GL_ERROR
 }
 
 void glTexParameteriv(GLenum target, GLenum pname, const GLint* params) {
+    LOG()
+    GET_GL4ES_FUNC(void, glTexParameteriv, GLenum target, GLenum pname, const GLint* params)
+    CALL_GL4ES_FUNC(glTexParameteriv, target, pname, params)
     LOG_D("glTexParameteriv, target: %s, pname: %s, params[0]: %s",
-          params, glEnumToString(pname), params ? glEnumToString(params[0]) : "0")
+          glEnumToString(target), glEnumToString(pname), params ? glEnumToString(params[0]) : "0")
 
     if (pname == GL_TEXTURE_SWIZZLE_RGBA) {
         LOG_D("find GL_TEXTURE_SWIZZLE_RGBA, now use glTexParameteri")
         if (params) {
-            // deferred those call to draw call?
             GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, params[0]);
             GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, params[1]);
             GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, params[2]);
             GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, params[3]);
 
-            // save states for now
             texture_t& tex = g_textures[bound_texture];
             tex.swizzle_param[0] = params[0];
             tex.swizzle_param[1] = params[1];
@@ -635,9 +621,10 @@ void glTexParameteriv(GLenum target, GLenum pname, const GLint* params) {
 
 void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
     LOG()
-
+    GET_GL4ES_FUNC(void, glTexSubImage2D, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
+    CALL_GL4ES_FUNC(glTexSubImage2D, target, level, xoffset, yoffset, width, height, format, type, pixels)
     LOG_D("glTexSubImage2D, target = %s, level = %d, xoffset = %d, yoffset = %d, width = %d, height = %d, format = %s, type = %s, pixels = 0x%x",
-            glEnumToString(target), level, xoffset, yoffset, width, height, glEnumToString(format),
+          glEnumToString(target), level, xoffset, yoffset, width, height, glEnumToString(format),
           glEnumToString(type), pixels)
 
     if (format == GL_BGRA && type == GL_UNSIGNED_INT_8_8_8_8) {
@@ -652,6 +639,8 @@ void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, G
 
 void glBindTexture(GLenum target, GLuint texture) {
     LOG()
+    GET_GL4ES_FUNC(void, glBindTexture, GLenum target, GLuint texture)
+    CALL_GL4ES_FUNC(glBindTexture, target, texture)
     LOG_D("glBindTexture(%s, %d)", glEnumToString(target), texture)
     INIT_CHECK_GL_ERROR
     GLES.glBindTexture(target, texture);
@@ -668,6 +657,8 @@ void glBindTexture(GLenum target, GLuint texture) {
 
 void glDeleteTextures(GLsizei n, const GLuint *textures) {
     LOG()
+    GET_GL4ES_FUNC(void, glDeleteTextures, GLsizei n, const GLuint *textures)
+    CALL_GL4ES_FUNC(glDeleteTextures, n, textures)
     INIT_CHECK_GL_ERROR
     GLES.glDeleteTextures(n, textures);
     CHECK_GL_ERROR_NO_INIT
@@ -679,8 +670,18 @@ void glDeleteTextures(GLsizei n, const GLuint *textures) {
     }
 }
 
+void glGenTextures(GLsizei n, GLuint *textures) {
+    LOG()
+    INIT_CHECK_GL_ERROR
+    GLES.glGenTextures(n, textures);
+    gl4es_glGenTextures(n, textures, false, textures);
+    CHECK_GL_ERROR_NO_INIT
+}
+
 void glGenerateTextureMipmap(GLuint texture) {
     LOG()
+    GET_GL4ES_FUNC(void, glGenerateTextureMipmap, GLuint texture)
+    CALL_GL4ES_FUNC(glGenerateTextureMipmap, texture)
     GLint currentTexture;
     auto& tex = g_textures[bound_texture];
     GLenum target = tex.target;
@@ -694,9 +695,11 @@ void glGenerateTextureMipmap(GLuint texture) {
 
 void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void* pixels) {
     LOG()
+    //GET_GL4ES_FUNC(void, glGetTexImage, GLenum target, GLint level, GLenum format, GLenum type, void* pixels)
+    //CALL_GL4ES_FUNC(glGetTexImage, target, level, format, type, pixels)
     LOG_D("glGetTexImage, target = %s, level = %d, format = %s, type = %s, pixel = 0x%x",
           glEnumToString(target), level, glEnumToString(format), glEnumToString(type), pixels)
-          
+
     GLint prevFBO;
     GLES.glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
     GLenum bindingTarget = get_binding_for_target(target);
@@ -744,9 +747,6 @@ void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void*
         glReadPixels(0, 0, width, height, format, type, pixels);
     }
 
-
-//    glReadPixels(0, 0, width, height, format, type, pixels);
-
     glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
     GLES.glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
     glDeleteFramebuffers(1, &fbo);
@@ -760,12 +760,14 @@ void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void*
 
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels) {
     LOG()
+    GET_GL4ES_FUNC(void, glReadPixels, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels)
+    CALL_GL4ES_FUNC(glReadPixels, x, y, width, height, format, type, pixels)
     LOG_D("glReadPixels, x=%d, y=%d, width=%d, height=%d, format=0x%x, type=0x%x, pixels=0x%x",
           x, y, width, height, format, type, pixels)
-          
+
     static int count = 0;
     GLenum prevFormat = format;
-    
+
     if (format == GL_BGRA && type == GL_UNSIGNED_INT_8_8_8_8) {
         format = GL_RGBA;
         type = GL_UNSIGNED_BYTE;
@@ -790,6 +792,8 @@ void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format
 
 void glTexParameteri(GLenum target, GLenum pname, GLint param) {
     LOG()
+    GET_GL4ES_FUNC(void, glTexParameteri, GLenum target, GLenum pname, GLint param)
+    CALL_GL4ES_FUNC(glTexParameteri, target, pname, param)
     pname = pname_convert(pname);
     LOG_D("glTexParameteri, pname: 0x%x", pname)
 
@@ -798,13 +802,15 @@ void glTexParameteri(GLenum target, GLenum pname, GLint param) {
         return;
     }
 
-    GLES.glTexParameteri(target,pname,param);
+    GLES.glTexParameteri(target, pname, param);
     CHECK_GL_ERROR
 }
 
 void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, const void *data)
 {
     LOG()
+    GET_GL4ES_FUNC(void, glClearTexImage, GLuint texture, GLint level, GLenum format, GLenum type, const void *data)
+    CALL_GL4ES_FUNC(glClearTexImage, texture, level, format, type, data)
     LOG_D("glClearTexImage, texture: %d, level: %d, format: %d, type: %d", texture, level, format, type)
     INIT_CHECK_GL_ERROR_FORCE
     GLuint fbo;
@@ -822,7 +828,7 @@ void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, co
         CHECK_GL_ERROR_NO_INIT
         return;
     }
-    
+
     GLES.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     CHECK_GL_ERROR_NO_INIT
 
@@ -871,6 +877,9 @@ void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, co
 
 void glPixelStorei(GLenum pname, GLint param) {
     LOG_D("glPixelStorei, pname = %s, param = %d", glEnumToString(pname), param)
+    GET_GL4ES_FUNC(void, glPixelStorei, GLenum pname, GLint param)
+    CALL_GL4ES_FUNC(glPixelStorei, pname, param)
     GLES.glPixelStorei(pname, param);
     CHECK_GL_ERROR
 }
+

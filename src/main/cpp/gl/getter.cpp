@@ -12,10 +12,12 @@
 
 void glGetIntegerv(GLenum pname, GLint *params) {
     LOG()
+    GET_GL4ES_FUNC(void, glGetIntegerv, GLenum pname, GLint *params)
+    CALL_GL4ES_FUNC(glGetIntegerv, pname, params)
     LOG_D("glGetIntegerv, pname: %s", glEnumToString(pname))
     switch (pname) {
         case GL_CONTEXT_PROFILE_MASK:
-            (*params) = GL_CONTEXT_CORE_PROFILE_BIT;
+            (*params) = GL_CONTEXT_COMPATIBILITY_PROFILE_BIT;
             break;
         case GL_NUM_EXTENSIONS:
             static GLint num_extensions = -1;
@@ -68,13 +70,15 @@ void glGetIntegerv(GLenum pname, GLint *params) {
             break;
         default:
             GLES.glGetIntegerv(pname, params);
-            LOG_D("  -> %d",*params)
+            LOG_D("  -> %d", *params)
             CHECK_GL_ERROR
     }
 }
 
 GLenum glGetError() {
     LOG()
+    GET_GL4ES_FUNC(GLenum, glGetError, void)
+    CALL_GL4ES_FUNC(glGetError)
     GLenum err = GLES.glGetError();
     // just clear gles error, no reporting
     if (err != GL_NO_ERROR) {
@@ -104,6 +108,11 @@ void InitGLESBaseExtensions() {
              "GL_ARB_shading_language_100 "
              "GL_ARB_imaging "
              "GL_ARB_draw_buffers_blend "
+             "OpenGL10 "
+             "OpenGL11 "
+             "OpenGL12 "
+             "OpenGL13 "
+             "OpenGL14 "
              "OpenGL15 "
              "OpenGL30 "
              "OpenGL31 "
@@ -194,6 +203,8 @@ static std::string rendererString;
 static std::string versionString;
 const GLubyte * glGetString( GLenum name ) {
     LOG()
+    GET_GL4ES_FUNC(const GLubyte*, glGetString, GLenum name)
+    CALL_GL4ES_FUNC(glGetString, name)
     /* Feature in the Future
      * Advanced OpenGL driver: NV renderer.
     switch (name) {
@@ -225,8 +236,8 @@ const GLubyte * glGetString( GLenum name ) {
             if (versionCache.empty()) {
                 versionCache = "4.0.0 MobileGlues ";
                 versionCache += std::to_string(MAJOR) + "."
-                                +  std::to_string(MINOR) + "."
-                                +  std::to_string(REVISION);
+                                + std::to_string(MINOR) + "."
+                                + std::to_string(REVISION);
 #if PATCH != 0
                 versionCache += "." + std::to_string(PATCH);
 #endif
@@ -241,8 +252,7 @@ const GLubyte * glGetString( GLenum name ) {
             }
             return (const GLubyte *)versionCache.c_str();
         }
-
-        case GL_RENDERER: 
+        case GL_RENDERER:
         {
             if (rendererString == std::string("")) {
                 const char* gpuName = getGpuName();
@@ -262,6 +272,8 @@ const GLubyte * glGetString( GLenum name ) {
 
 const GLubyte * glGetStringi(GLenum name, GLuint index) {
     LOG()
+    GET_GL4ES_FUNC(const GLubyte*, glGetStringi, GLenum name, GLuint index)
+    CALL_GL4ES_FUNC(glGetStringi, name, index)
     typedef struct {
         GLenum name;
         const char** parts;
@@ -327,12 +339,16 @@ const GLubyte * glGetStringi(GLenum name, GLuint index) {
 
 void glGetQueryObjectiv(GLuint id, GLenum pname, GLint* params) {
     LOG()
+    GET_GL4ES_FUNC(void, glGetQueryObjectiv, GLuint id, GLenum pname, GLint* params)
+    CALL_GL4ES_FUNC(glGetQueryObjectiv, id, pname, params)
     GLES.glGetQueryObjectivEXT(id, pname, params);
     CHECK_GL_ERROR
 }
 
 void glGetQueryObjecti64v(GLuint id, GLenum pname, GLint64* params) {
     LOG()
+    GET_GL4ES_FUNC(void, glGetQueryObjecti64v, GLuint id, GLenum pname, GLint64* params)
+    CALL_GL4ES_FUNC(glGetQueryObjecti64v, id, pname, params)
     GLES.glGetQueryObjecti64vEXT(id, pname, params);
     CHECK_GL_ERROR
 }

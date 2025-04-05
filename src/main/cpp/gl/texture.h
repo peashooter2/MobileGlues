@@ -43,6 +43,7 @@ GLAPI GLAPIENTRY void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei heig
 GLAPI GLAPIENTRY void glTexParameteri(GLenum target, GLenum pname, GLint param);
 GLAPI GLAPIENTRY void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, const void* data);
 GLAPI GLAPIENTRY void glPixelStorei(GLenum pname, GLint param);
+GLAPI GLAPIENTRY void glGenTextures(GLsizei n, GLuint *textures);
 
 #ifdef __cplusplus
 }

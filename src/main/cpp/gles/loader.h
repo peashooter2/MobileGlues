@@ -1,14 +1,18 @@
 #ifndef MOBILEGLUES_GLES_LOADER_H_
 #define MOBILEGLUES_GLES_LOADER_H_
 
-#include "../gl/log.h"
 #include "../gl/gl.h"
 #include "gles.h"
 #include <dlfcn.h>
+#ifdef __cplusplus
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -87,15 +91,33 @@ static name##_PTR egl_##name = NULL;                                        \
 #define INIT_CHECK_GL_ERROR_FORCE                                           \
     GLenum ERR = GL_NO_ERROR;
 
+#define GET_GL4ES_FUNC(ret_type, name, ...) \
+    typedef ret_type (*GL4ES_##name##_PTR)(__VA_ARGS__);
+
+#define CALL_GL4ES_FUNC(name, ...)                                                  \
+    static void *GL4ES_FUNC_sym = dlsym(RTLD_DEFAULT, "gl4es_" #name);              \
+    if (GL4ES_FUNC_sym) {                                                           \
+        ((GL4ES_##name##_PTR)GL4ES_FUNC_sym)(__VA_ARGS__);                          \
+    }
+
+#define CALL_GL4ES_FUNC_RETURN(type, name, ...) \
+    type GL4ES_RETURN_VALUE;                                                          \
+    static void *GL4ES_FUNC_sym = dlsym(RTLD_DEFAULT, "gl4es_" #name);                \
+    if (GL4ES_FUNC_sym) {                                                             \
+        GL4ES_RETURN_VALUE = (type)((GL4ES_##name##_PTR)GL4ES_FUNC_sym)(__VA_ARGS__); \
+    }
+
 #define NATIVE_FUNCTION_HEAD(type,name,...)                                 \
 extern "C" GLAPI GLAPIENTRY type name##ARB(__VA_ARGS__) __attribute__((alias(#name))); \
 extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__)  { \
-    LOG()
+    LOG() \
+    GET_GL4ES_FUNC(type, name, __VA_ARGS__)
 
 #if GLOBAL_DEBUG
 #define NATIVE_FUNCTION_END(type,name,...)                                  \
     LOG_D("Use native function: %s @ %s(...)", RENDERERNAME, __FUNCTION__); \
-    type ret = GLES.name(__VA_ARGS__);                                    \
+    CALL_GL4ES_FUNC(name, __VA_ARGS__)                                      \
+    type ret = GLES.name(__VA_ARGS__);                                      \
     GLenum ERR = GLES.glGetError();                                         \
     if (ERR != GL_NO_ERROR)                                                 \
         LOG_E("ERROR: %d", ERR)                                             \
@@ -104,7 +126,8 @@ extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__)  { \
 #else
 #define NATIVE_FUNCTION_END(type,name,...)                                  \
     LOG_D("Use native function: %s @ %s(...)", RENDERERNAME, __FUNCTION__); \
-    type ret = GLES.name(__VA_ARGS__);                                    \
+    CALL_GL4ES_FUNC(name, __VA_ARGS__)                                      \
+    type ret = GLES.name(__VA_ARGS__);                                      \
     CHECK_GL_ERROR                                                          \
     return ret;                                                             \
 }
@@ -113,27 +136,34 @@ extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__)  { \
 #if GLOBAL_DEBUG
 #define NATIVE_FUNCTION_END_NO_RETURN(type,name,...)                        \
     LOG_D("Use native function: %s @ %s(...)", RENDERERNAME, __FUNCTION__); \
-    GLES.name(__VA_ARGS__);                                               \
+    CALL_GL4ES_FUNC(name, __VA_ARGS__)                                      \
+    GLES.name(__VA_ARGS__);                                                 \
     CHECK_GL_ERROR                                                          \
 }
 #else
 #define NATIVE_FUNCTION_END_NO_RETURN(type,name,...)                        \
     LOG_D("Use native function: %s @ %s(...)", RENDERERNAME, __FUNCTION__); \
-    GLES.name(__VA_ARGS__);                                               \
+    CALL_GL4ES_FUNC(name, __VA_ARGS__)                                      \
+    GLES.name(__VA_ARGS__);                                                 \
 }
 #endif
 
 #define STUB_FUNCTION_HEAD(type,name,...)                                   \
-extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__) { \
-    LOG()
+extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__) {                        \
+    LOG()                                                                   \
+    GET_GL4ES_FUNC(type, name, __VA_ARGS__)
 
 #define STUB_FUNCTION_END(type,name,...)                                    \
     LOG_W("Stub function: %s @ %s(...)", RENDERERNAME, __FUNCTION__);       \
-    return (type)0;                                                         \
+    CALL_GL4ES_FUNC_RETURN(type, name, __VA_ARGS__)                         \
+    CHECK_GL_ERROR                                                          \
+    return GL4ES_RETURN_VALUE;                                              \
 }
 
 #define STUB_FUNCTION_END_NO_RETURN(type,name,...)                          \
     LOG_W("Stub function: %s @ %s(...)", RENDERERNAME, __FUNCTION__);       \
+    CALL_GL4ES_FUNC(name, __VA_ARGS__)                                      \
+    CHECK_GL_ERROR                                                          \
 }
 
 struct gles_caps_t {

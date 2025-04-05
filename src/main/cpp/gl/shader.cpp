@@ -18,7 +18,7 @@ struct shader_t shaderInfo;
 
 bool can_run_essl3(unsigned int esversion, const char *glsl) {
     if (strncmp(glsl, "#version 100", 12) == 0) {
-        return true; 
+        return true;
     }
 
     unsigned int glsl_version = 0;
@@ -40,8 +40,10 @@ bool is_direct_shader(const char *glsl)
     return es3_ability;
 }
 
-void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, const GLint *length) {    
+void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, const GLint *length) {
     LOG()
+    GET_GL4ES_FUNC(void, glShaderSource, GLuint shader, GLsizei count, const GLchar *const* string, const GLint *length)
+    CALL_GL4ES_FUNC(glShaderSource, shader, count, string, length)
     shaderInfo.id = 0;
     shaderInfo.converted = "";
     shaderInfo.frag_data_changed = 0;
@@ -60,22 +62,6 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, c
         for (int i=0; i < count; i++)
             glsl_src += string[i];
     }
-
-//    char* source = nullptr;
-//    char* converted = nullptr;
-//    source = (char*)malloc(l+1);
-//    memset(source, 0, l+1);
-//    if(length) {
-//        for (int i=0; i<count; i++) {
-//            if(length[i] >= 0)
-//                strncat(source, string[i], length[i]);
-//            else
-//                strcat(source, string[i]);
-//        }
-//    } else {
-//        for (int i=0; i<count; i++)
-//            strcat(source, string[i]);
-//    }
     if (GLES.glShaderSource) {
         if(is_direct_shader(glsl_src.c_str())){
             LOG_D("[INFO] [Shader] Direct shader source: ")
@@ -103,7 +89,7 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, c
             GLES.glShaderSource(shader, count, s, nullptr);
         }
         else
-            LOG_E("Failed to convert glsl.")
+        LOG_E("Failed to convert glsl.")
         CHECK_GL_ERROR
     } else {
         LOG_E("No GLES.glShaderSource")
@@ -112,6 +98,8 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, c
 
 void glGetShaderiv(GLuint shader, GLenum pname, GLint *params) {
     LOG()
+    GET_GL4ES_FUNC(void, glGetShaderiv, GLuint shader, GLenum pname, GLint *params)
+    CALL_GL4ES_FUNC(glGetShaderiv, shader, pname, params)
     GLES.glGetShaderiv(shader, pname, params);
     if(global_settings.ignore_error >= 1 && pname == GL_COMPILE_STATUS && !*params) {
         GLchar infoLog[512];

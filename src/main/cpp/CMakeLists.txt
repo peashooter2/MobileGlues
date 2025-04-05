@@ -51,6 +51,80 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         config/config.cpp
         config/gpu_utils.cpp
         config/settings.cpp
+
+        gl/gl4es/gl/string_utils.c
+        gl/gl4es/gl/arbconverter.c
+        gl/gl4es/gl/arbgenerator.c
+        gl/gl4es/gl/arbhelper.c
+        gl/gl4es/gl/arbparser.c
+        gl/gl4es/gl/array.c
+        gl/gl4es/gl/blend.c
+        gl/gl4es/gl/blit.c
+        gl/gl4es/gl/buffers.c
+        gl/gl4es/gl/build_info.c
+        gl/gl4es/gl/debug.c
+        gl/gl4es/gl/decompress.c
+        gl/gl4es/gl/depth.c
+        gl/gl4es/gl/directstate.c
+        gl/gl4es/gl/drawing.c
+        gl/gl4es/gl/enable.c
+        gl/gl4es/gl/envvars.c
+        gl/gl4es/gl/eval.c
+        gl/gl4es/gl/face.c
+        gl/gl4es/gl/fog.c
+        gl/gl4es/gl/fpe.c
+        gl/gl4es/gl/fpe_cache.c
+        gl/gl4es/gl/fpe_shader.c
+        gl/gl4es/gl/framebuffers.c
+        gl/gl4es/gl/gl_lookup.c
+        gl/gl4es/gl/getter.c
+        gl/gl4es/gl/gl4es.c
+        gl/gl4es/gl/glstate.c
+        gl/gl4es/gl/hint.c
+        gl/gl4es/gl/init.c
+        gl/gl4es/gl/light.c
+        gl/gl4es/gl/line.c
+        gl/gl4es/gl/list.c
+        gl/gl4es/gl/listdraw.c
+        gl/gl4es/gl/listrl.c
+        gl/gl4es/gl/loader.c
+        gl/gl4es/gl/logs.c
+        gl/gl4es/gl/matrix.c
+        gl/gl4es/gl/matvec.c
+        gl/gl4es/gl/oldprogram.c
+        gl/gl4es/gl/pixel.c
+        gl/gl4es/gl/planes.c
+        gl/gl4es/gl/pointsprite.c
+        gl/gl4es/gl/preproc.c
+        gl/gl4es/gl/program.c
+        gl/gl4es/gl/queries.c
+        gl/gl4es/gl/raster.c
+        gl/gl4es/gl/render.c
+        gl/gl4es/gl/shader.c
+        gl/gl4es/gl/shaderconv.c
+        gl/gl4es/gl/shader_hacks.c
+        gl/gl4es/gl/stack.c
+        gl/gl4es/gl/stencil.c
+        gl/gl4es/gl/stubs.c
+        gl/gl4es/gl/texenv.c
+        gl/gl4es/gl/texgen.c
+        gl/gl4es/gl/texture.c
+        gl/gl4es/gl/texture_compressed.c
+        gl/gl4es/gl/texture_params.c
+        gl/gl4es/gl/texture_read.c
+        gl/gl4es/gl/texture_3d.c
+        gl/gl4es/gl/uniform.c
+        gl/gl4es/gl/vertexattrib.c
+        gl/gl4es/gl/wrap/gl4eswraps.c
+        gl/gl4es/gl/wrap/gles.c
+        gl/gl4es/gl/wrap/glstub.c
+        gl/gl4es/gl/math/matheval.c
+        gl/gl4es/glx/hardext.c
+        gl/gl4es/glx/glx.c
+        gl/gl4es/glx/lookup.c
+        gl/gl4es/glx/gbm.c
+        gl/gl4es/glx/streaming.c
+        gl/gl4es/gl/samplers.c
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ./includes)
