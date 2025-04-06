@@ -343,7 +343,10 @@ void gl4es_blitTexture(GLuint texture,
     GLfloat zoomx, GLfloat zoomy, 
     GLfloat vpwidth, GLfloat vpheight, 
     GLfloat x, GLfloat y, GLint mode) {
-//SHUT_LOGD("MobileGlues-gl4es: blitTexture(%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d) customvp=%d, vp=%d/%d/%d/%d\n", texture, sx, sy, width, height, nwidth, nheight, zoomx, zoomy, vpwidth, vpheight, x, y, mode, (vpwidth>0.0), glstate->raster.viewport.x, glstate->raster.viewport.y, glstate->raster.viewport.width, glstate->raster.viewport.height);
+    // TODO: Handle the conflict between Core Profile with Compatibility Profile
+    if (glstate->target_program)
+        return;
+    SHUT_LOGD("MobileGlues-gl4es: blitTexture(%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d) customvp=%d, vp=%d/%d/%d/%d\n", texture, sx, sy, width, height, nwidth, nheight, zoomx, zoomy, vpwidth, vpheight, x, y, mode, (vpwidth>0.0), glstate->raster.viewport.x, glstate->raster.viewport.y, glstate->raster.viewport.width, glstate->raster.viewport.height);
     LOAD_GLES(glBindTexture);
     LOAD_GLES(glActiveTexture);
     LOAD_GLES(glEnable);
