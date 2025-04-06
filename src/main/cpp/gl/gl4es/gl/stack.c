@@ -570,7 +570,7 @@ DBG(SHUT_LOGD("MobileGlues-gl4es: glPopAttrib()\n");)
                 if (cur->texture[a][j] != glstate->texture.bound[a][j]->texture) {
                     if(glstate->texture.active!=a)
                         gl4es_glActiveTexture(GL_TEXTURE0+a);
-                    gl4es_glBindTexture(to_target(j), cur->texture[a][j]);
+                    gl4es_glBindTexture_real(to_target(j), cur->texture[a][j]);
                 }
         }
         if (glstate->texture.active!= old_tex) gl4es_glActiveTexture(GL_TEXTURE0+old_tex);

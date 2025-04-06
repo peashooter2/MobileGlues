@@ -346,7 +346,7 @@ void gl4es_blitTexture(GLuint texture,
     // TODO: Handle the conflict between Core Profile with Compatibility Profile
     if (glstate->target_program)
         return;
-    SHUT_LOGD("MobileGlues-gl4es: blitTexture(%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d) customvp=%d, vp=%d/%d/%d/%d\n", texture, sx, sy, width, height, nwidth, nheight, zoomx, zoomy, vpwidth, vpheight, x, y, mode, (vpwidth>0.0), glstate->raster.viewport.x, glstate->raster.viewport.y, glstate->raster.viewport.width, glstate->raster.viewport.height);
+    DBG(SHUT_LOGD("MobileGlues-gl4es: blitTexture(%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d) customvp=%d, vp=%d/%d/%d/%d\n", texture, sx, sy, width, height, nwidth, nheight, zoomx, zoomy, vpwidth, vpheight, x, y, mode, (vpwidth>0.0), glstate->raster.viewport.x, glstate->raster.viewport.y, glstate->raster.viewport.width, glstate->raster.viewport.height);)
     LOAD_GLES(glBindTexture);
     LOAD_GLES(glActiveTexture);
     LOAD_GLES(glEnable);
@@ -358,7 +358,7 @@ void gl4es_blitTexture(GLuint texture,
 
     if(glstate->gleshard->active) {
         glstate->gleshard->active = 0;
-        {} //STUB of gl4es_gles_glActiveTexture(GL_TEXTURE0);
+        gl4es_gles_glActiveTexture(GL_TEXTURE0);
     }
 
     GLint depthwrite = glstate->depth.mask;
@@ -380,13 +380,13 @@ void gl4es_blitTexture(GLuint texture,
     int tmp = glstate->enable.texture[0];
 
     if(glstate->actual_tex2d[0] != texture)
-        {} //STUB of gl4es_gles_glBindTexture(GL_TEXTURE_2D, texture);
+        gl4es_gles_glBindTexture(GL_TEXTURE_2D, texture);
 
     if(hardext.esversion==1) {
         if(!IS_TEX2D(tmp))
-            {} //STUB of gl4es_gles_glEnable(GL_TEXTURE_2D);
+            gl4es_gles_glEnable(GL_TEXTURE_2D);
         if(IS_CUBE_MAP(tmp))
-            {} //STUB of gl4es_gles_glDisable(GL_TEXTURE_CUBE_MAP);
+            gl4es_gles_glDisable(GL_TEXTURE_CUBE_MAP);
 
         gl4es_blitTexture_gles1(texture, sx, sy, width, height, 
                                 nwidth, nheight, zoomx, zoomy, 
@@ -411,7 +411,7 @@ void gl4es_blitTexture(GLuint texture,
     } else
 #endif
     if (glstate->actual_tex2d[0] != texture) 
-        {} //STUB of gl4es_gles_glBindTexture(GL_TEXTURE_2D, glstate->actual_tex2d[0]);
+        gl4es_gles_glBindTexture(GL_TEXTURE_2D, glstate->actual_tex2d[0]);
 
     if(depthwrite)
         gl4es_glDepthMask(GL_TRUE);

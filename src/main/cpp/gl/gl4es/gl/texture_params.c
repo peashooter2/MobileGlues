@@ -589,6 +589,66 @@ void APIENTRY_GL4ES gl4es_glDeleteTextures(GLsizei n, const GLuint *textures) {
         }
     }
 }
+void APIENTRY_GL4ES gl4es_glDeleteTextures_real(GLsizei n, const GLuint *textures) {
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glDeleteTextures(%d, %p {%d...})\n", n, textures, n?textures[0]:-1);)
+    if(!glstate) return;
+    FLUSH_BEGINEND;
+    
+    noerrorShim();
+    LOAD_GLES(glDeleteTextures);
+    khash_t(tex) *list = glstate->texture.list;
+    if (list) {
+        khint_t k;
+        gltexture_t *tex;
+        for (int i = 0; i < n; i++) {
+            GLuint t = textures[i];
+            if(!t) continue;    // skip texture 0
+            k = kh_get(tex, list, t);
+            if (k != kh_end(list)) {
+                tex = kh_value(list, k);
+                int a;
+                for (a=0; a<MAX_TEX; a++) {
+                    int found=0;
+                    for (int j=0; j<ENABLED_TEXTURE_LAST; j++)
+                        if (tex == glstate->texture.bound[a][j]) {
+                            glstate->texture.bound[a][j] = glstate->texture.zero;
+                            found = 1;
+                        }
+                    if(glstate->actual_tex2d[a]==tex->glname) {
+                        glstate->actual_tex2d[a] = 0;
+                        found = 1;
+                    }
+                    if(found)
+                        glstate->bound_changed = a+1;
+                }
+                gl4es_gles_glDeleteTextures(1, &tex->glname);
+                // check if renderbuffer where associeted
+                if(tex->binded_fbo) {
+                    if(tex->renderdepth)
+                        gl4es_glDeleteRenderbuffers(1, &tex->renderdepth);
+                    if(tex->renderstencil)
+                        gl4es_glDeleteRenderbuffers(1, &tex->renderstencil);
+                }
+                errorGL();
+#ifdef TEXSTREAM
+                if (globals4es.texstream && tex->streamed)
+                    FreeStreamed(tex->streamingID);
+#endif
+                #if 1
+                kh_del(tex, list, k);
+                if (tex->data) free(tex->data);
+                free(tex);
+                #else
+                tex->glname = tex->texture;
+                tex->streamed = false;
+                tex->streamingID = -1;
+                if (tex->data) free(tex->data);
+                tex->data = NULL;
+                #endif
+            }
+        }
+    }
+}
 
 void gl4es_glGenTextures(GLsizei n, GLuint *textures, bool fpe_action, GLuint *real_textures) {
     DBG(SHUT_LOGD("MobileGlues-gl4es: glGenTextures(%d, %p)\n", n, textures);)

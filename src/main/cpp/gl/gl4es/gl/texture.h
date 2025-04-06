@@ -41,6 +41,7 @@ void gl4es_glBindTexture_real(GLenum target, GLuint texture);
 void gl4es_glGenTextures(GLsizei n, GLuint *textures, bool fpe_action, GLuint *real_textures);
 void gl4es_glGenTextures_real(GLsizei n, GLuint *textures, bool fpe_action, GLuint *real_textures);
 void APIENTRY_GL4ES gl4es_glDeleteTextures(GLsizei n, const GLuint * textures);
+void gl4es_glDeleteTextures_real(GLsizei n, const GLuint * textures);
 void APIENTRY_GL4ES gl4es_glTexParameteri(GLenum target, GLenum pname, GLint param);
 void gl4es_glTexParameteri_real(GLenum target, GLenum pname, GLint param);
 void APIENTRY_GL4ES gl4es_glTexParameterf(GLenum target, GLenum pname, GLfloat param);

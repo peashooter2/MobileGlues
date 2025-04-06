@@ -742,7 +742,7 @@ void free_renderlist(renderlist_t *list) {
 			
         if (list->raster && !((*list->raster->shared)--)) {
 			if (list->raster->texture)
-				gl4es_glDeleteTextures(1, &list->raster->texture);
+				gl4es_glDeleteTextures_real(1, &list->raster->texture);
             free(list->raster->shared);
 			free(list->raster);
 		}

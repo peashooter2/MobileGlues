@@ -131,11 +131,11 @@ void APIENTRY_GL4ES gl4es_glScissor(GLint x, GLint y, GLsizei width, GLsizei hei
 // hacky viewport temporary changes
 void pushViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
     LOAD_GLES(glViewport);
-    {} //STUB of gl4es_gles_glViewport(x, y, width, height);
+    gl4es_gles_glViewport(x, y, width, height);
 }
 void popViewport() {
     LOAD_GLES(glViewport);
-    {} //STUB of gl4es_gles_glViewport(glstate->raster.viewport.x, glstate->raster.viewport.y, glstate->raster.viewport.width, glstate->raster.viewport.height);
+    gl4es_gles_glViewport(glstate->raster.viewport.x, glstate->raster.viewport.y, glstate->raster.viewport.width, glstate->raster.viewport.height);
 }
 
 
@@ -256,28 +256,28 @@ void raster_to_texture(rasterlist_t *r)
 	
 	if(r->texture==0) {
 		gl4es_glEnable(GL_TEXTURE_2D);
-        gl4es_glGenTextures(1, &r->texture, 1, 0);
-		gl4es_glBindTexture(GL_TEXTURE_2D, r->texture);
+        gl4es_glGenTextures_real(1, &r->texture, 1, 0);
+		gl4es_glBindTexture_real(GL_TEXTURE_2D, r->texture);
 
-		gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0); // this is to be sure texture is not npot'ed ...
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);	// ... if not needed
-		gl4es_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glstate->raster.raster_nwidth, glstate->raster.raster_nheight,
+		gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0); // this is to be sure texture is not npot'ed ...
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);	// ... if not needed
+		gl4es_glTexImage2D_real(GL_TEXTURE_2D, 0, GL_RGBA, glstate->raster.raster_nwidth, glstate->raster.raster_nheight,
 			0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	} else {
-		gl4es_glBindTexture(GL_TEXTURE_2D, r->texture);
+		gl4es_glBindTexture_real(GL_TEXTURE_2D, r->texture);
 	}
-	gl4es_glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, glstate->raster.raster_width, glstate->raster.raster_height,
+	gl4es_glTexSubImage2D_real(GL_TEXTURE_2D, 0, 0, 0, glstate->raster.raster_width, glstate->raster.raster_height,
 		GL_RGBA, GL_UNSIGNED_BYTE, glstate->raster.data);
 
 	r->width = glstate->raster.raster_width;
 	r->height = glstate->raster.raster_height;
 	r->nwidth = glstate->raster.raster_nwidth;
 	r->nheight = glstate->raster.raster_nheight;
-	gl4es_glBindTexture(GL_TEXTURE_2D, old_tex);
+	gl4es_glBindTexture_real(GL_TEXTURE_2D, old_tex);
 	if (old_tex_unit!=0) 
 		gl4es_glActiveTexture(old_tex_unit+GL_TEXTURE0);
 	gl4es_glPopAttrib();
@@ -304,35 +304,35 @@ void bitmap_flush() {
 	if(IS_CUBE_MAP(old_active)) gl4es_glDisable(GL_TEXTURE_CUBE_MAP);
 
 	if(!glstate->raster.bm_texture) {
-        gl4es_glGenTextures(1, &glstate->raster.bm_texture, 1, 0);
-		gl4es_glBindTexture(GL_TEXTURE_2D, glstate->raster.bm_texture);
+        gl4es_glGenTextures_real(1, &glstate->raster.bm_texture, 1, 0);
+		gl4es_glBindTexture_real(GL_TEXTURE_2D, glstate->raster.bm_texture);
 
-		gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0); // this is to be sure texture is not npot'ed ...
-		gl4es_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);	// ... if not needed
+		gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		gl4es_glTexParameteri_real(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0); // this is to be sure texture is not npot'ed ...
+		gl4es_glTexParameterf_real(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);	// ... if not needed
 	} else {
-		gl4es_glBindTexture(GL_TEXTURE_2D, glstate->raster.bm_texture);
+		gl4es_glBindTexture_real(GL_TEXTURE_2D, glstate->raster.bm_texture);
 	}
 	if (glstate->raster.bm_tnwidth < glstate->raster.bm_width || glstate->raster.bm_tnheight < glstate->raster.bm_height) {
 		glstate->raster.bm_tnwidth = (hardext.npot)?glstate->raster.bm_width:npot(glstate->raster.bm_width);
 		glstate->raster.bm_tnheight = (hardext.npot)?glstate->raster.bm_height:npot(glstate->raster.bm_height);
-		gl4es_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glstate->raster.bm_tnwidth, glstate->raster.bm_tnheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		gl4es_glTexImage2D_real(GL_TEXTURE_2D, 0, GL_RGBA, glstate->raster.bm_tnwidth, glstate->raster.bm_tnheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	}
 	int sx = glstate->raster.bm_x1;
 	int ex = glstate->raster.bm_x2-glstate->raster.bm_x1;
 	int sy = glstate->raster.bm_y1;
 	int ey = glstate->raster.bm_y2-glstate->raster.bm_y1;
 	if(sx==0 && sy==0 && ex==glstate->raster.bm_width && ey==glstate->raster.bm_height) {
-		gl4es_glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, glstate->raster.bm_width, glstate->raster.bm_height, GL_RGBA, GL_UNSIGNED_BYTE, glstate->raster.bitmap);
+		gl4es_glTexSubImage2D_real(GL_TEXTURE_2D, 0, 0, 0, glstate->raster.bm_width, glstate->raster.bm_height, GL_RGBA, GL_UNSIGNED_BYTE, glstate->raster.bitmap);
 	} else {
 		int alloc = 4*ex*ey;
 		gl4es_scratch(alloc);
 		for (int i=0; i<ey; i++)
 			memcpy((char*)glstate->scratch+4*i*ex, (char*)glstate->raster.bitmap+4*(sx+(sy+i)*glstate->raster.bm_width), ex*4);
-		gl4es_glTexSubImage2D(GL_TEXTURE_2D, 0, sx, sy, ex, ey, GL_RGBA, GL_UNSIGNED_BYTE, glstate->scratch);
+		gl4es_glTexSubImage2D_real(GL_TEXTURE_2D, 0, sx, sy, ex, ey, GL_RGBA, GL_UNSIGNED_BYTE, glstate->scratch);
 	}
 
 	gl4es_blitTexture(
@@ -355,7 +355,7 @@ void bitmap_flush() {
 	if(IS_CUBE_MAP(old_active)) gl4es_glEnable(GL_TEXTURE_CUBE_MAP);
 
 	if (old_tex!=glstate->raster.bm_texture)
-		gl4es_glBindTexture(GL_TEXTURE_2D, old_tex);
+		gl4es_glBindTexture_real(GL_TEXTURE_2D, old_tex);
 
 	if(old_tex_unit)
 		gl4es_glActiveTexture(GL_TEXTURE0 + old_tex_unit);
@@ -568,7 +568,7 @@ void APIENTRY_GL4ES gl4es_glDrawPixels(GLsizei width, GLsizei height, GLenum for
 	} else {
 		r = &glstate->raster.immediate;
 		if(r->texture && (width>r->nwidth || height>r->nheight)) {
-			gl4es_glDeleteTextures(1, &r->texture);
+			gl4es_glDeleteTextures_real(1, &r->texture);
 			r->texture = 0;
 		}
 	}

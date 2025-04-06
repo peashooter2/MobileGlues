@@ -438,7 +438,7 @@ void draw_renderlist(renderlist_t *list) {
             gl4es_glActiveTexture(GL_TEXTURE0+list->tmu);
         }
 	    if (list->set_texture) {
-            gl4es_glBindTexture(list->target_texture, list->texture);
+            gl4es_glBindTexture_real(list->target_texture, list->texture);
         }
         // raster
         if (list->raster_op) {
@@ -565,7 +565,7 @@ void draw_renderlist(renderlist_t *list) {
                 }
                 gl4es_gles_glColorPointer(4, GL_FLOAT, 0, list->final_colors);
             } else {
-SHUT_LOGD("MobileGlues-gl4es: colors=%f, %f, %f, %f / %f, %f, %f, %f\n", list->color[0],list->color[1],list->color[2],list->color[3], list->color[4],list->color[5],list->color[6],list->color[7]);
+                DBG(SHUT_LOGD("MobileGlues-gl4es: colors=%f, %f, %f, %f / %f, %f, %f, %f\n", list->color[0],list->color[1],list->color[2],list->color[3], list->color[4],list->color[5],list->color[6],list->color[7]);)
                 gl4es_gles_glColorPointer(4, GL_FLOAT, list->color_stride, list->color);
             }
         } else {
