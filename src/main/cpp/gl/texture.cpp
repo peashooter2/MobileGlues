@@ -278,6 +278,35 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
         CHECK_GL_ERROR
     }
 
+    // Fix for 1.12
+    if (transfer_format == GL_BGRA && tex.format != transfer_format
+        && transfer_type == GL_UNSIGNED_INT_8_8_8_8_REV)
+    {
+        LOG_D("Detected GL_BGRA/GL_UNSIGNED_INT_8_8_8_8_REV format @ tex = %d, do swizzle", bound_texture)
+        if (tex.swizzle_param[0] == 0) {
+            tex.swizzle_param[0] = GL_RED;
+            tex.swizzle_param[1] = GL_GREEN;
+            tex.swizzle_param[2] = GL_BLUE;
+            tex.swizzle_param[3] = GL_ALPHA;
+        }
+
+        GLint r = tex.swizzle_param[0];
+        GLint g = tex.swizzle_param[1];
+        GLint b = tex.swizzle_param[2];
+        GLint a = tex.swizzle_param[3];
+        tex.swizzle_param[0] = b;
+        tex.swizzle_param[1] = g;
+        tex.swizzle_param[2] = r;
+        tex.swizzle_param[3] = a;
+        tex.format = transfer_format;
+
+        GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, tex.swizzle_param[0]);
+        GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, tex.swizzle_param[1]);
+        GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, tex.swizzle_param[2]);
+        GLES.glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, tex.swizzle_param[3]);
+        CHECK_GL_ERROR
+    }
+
     GLES.glTexImage2D(target, level, internalFormat, width, height, border, format, type, pixels);
 
     CHECK_GL_ERROR
