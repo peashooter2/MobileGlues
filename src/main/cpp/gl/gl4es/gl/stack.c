@@ -6,6 +6,7 @@
 #include "wrap/gl4es.h"
 #include "matrix.h"
 #include "debug.h"
+#include "hint.h"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -452,13 +453,13 @@ DBG(SHUT_LOGD("MobileGlues-gl4es: glPopAttrib()\n");)
     }
 
     if (cur->mask & GL_HINT_BIT) {
-        gl4es_glHint(GL_PERSPECTIVE_CORRECTION_HINT, cur->perspective_hint);
-        gl4es_glHint(GL_POINT_SMOOTH_HINT, cur->point_smooth_hint);
-        gl4es_glHint(GL_LINE_SMOOTH_HINT, cur->line_smooth_hint);
-        gl4es_glHint(GL_FOG_HINT, cur->fog_hint);
-        gl4es_glHint(GL_GENERATE_MIPMAP_HINT, cur->mipmap_hint);
+        gl4es_glHint_real(GL_PERSPECTIVE_CORRECTION_HINT, cur->perspective_hint);
+        gl4es_glHint_real(GL_POINT_SMOOTH_HINT, cur->point_smooth_hint);
+        gl4es_glHint_real(GL_LINE_SMOOTH_HINT, cur->line_smooth_hint);
+        gl4es_glHint_real(GL_FOG_HINT, cur->fog_hint);
+        gl4es_glHint_real(GL_GENERATE_MIPMAP_HINT, cur->mipmap_hint);
         for (int i=GL4ES_HINT_FIRST; i<GL4ES_HINT_LAST; i++)
-            gl4es_glHint(i, cur->gles4_hint[i-GL4ES_HINT_FIRST]);
+            gl4es_glHint_real(i, cur->gles4_hint[i-GL4ES_HINT_FIRST]);
     }
 
     if (cur->mask & GL_LIGHTING_BIT) {
