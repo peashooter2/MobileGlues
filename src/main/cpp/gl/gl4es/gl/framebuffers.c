@@ -1336,7 +1336,9 @@ void blitMainFBO(int x, int y, int width, int height) {
         rx = (float)width/glstate->fbo.mainfbo_width;
         ry = (float)height/glstate->fbo.mainfbo_height;
     }
-    gl4es_blitTexture(glstate->fbo.mainfbo_tex, 0.f, 0.f,
+    // TODO: Handle the conflict between Core Profile with Compatibility Profile
+    if (!glstate->target_program)
+        gl4es_blitTexture(glstate->fbo.mainfbo_tex, 0.f, 0.f,
         glstate->fbo.mainfbo_width, glstate->fbo.mainfbo_height, 
         glstate->fbo.mainfbo_nwidth, glstate->fbo.mainfbo_nheight, 
         rx, ry,
@@ -1494,7 +1496,8 @@ void APIENTRY_GL4ES gl4es_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX
     GLint vp[4];
     memcpy(vp, &glstate->raster.viewport, sizeof(vp));
     gl4es_glViewport(0, 0, fbowidth, fboheight);
-    gl4es_blitTexture(glname, srcX0, srcY0, srcW, srcH, nwidth, nheight, zoomx, zoomy, 0, 0, dstX0, dstY0, BLIT_OPAQUE);
+    // TODO: Handle the conflict between Core Profile with Compatibility Profile
+    //gl4es_blitTexture(glname, srcX0, srcY0, srcW, srcH, nwidth, nheight, zoomx, zoomy, 0, 0, dstX0, dstY0, BLIT_OPAQUE);
     gl4es_glViewport(vp[0], vp[1], vp[2], vp[3]);
     if(created) {
         gl4es_glDeleteTextures(1, &texture);
