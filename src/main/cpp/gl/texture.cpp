@@ -232,6 +232,7 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
     auto& tex = g_textures[bound_texture];
     tex.internal_format = internalFormat;
     GLenum transfer_format = format;
+    GLenum transfer_type = type;
     LOG_D("mg_glTexImage2D, target: %s, level: %d, internalFormat: %s->%s, width: %d, height: %d, border: %d, format: %s, type: %s, pixels: 0x%x",
           glEnumToString(target), level, glEnumToString(internalFormat), glEnumToString(internalFormat),
           width, height, border, glEnumToString(format), glEnumToString(type), pixels)
@@ -250,7 +251,8 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
     }
 
     if (transfer_format == GL_BGRA && tex.format != transfer_format && internalFormat == GL_RGBA8
-        && width <= 128 && height <= 128) {
+        && width <= 128 && height <= 128)
+    {
         LOG_D("Detected GL_BGRA format @ tex = %d, do swizzle", bound_texture)
         if (tex.swizzle_param[0] == 0) {
             tex.swizzle_param[0] = GL_RED;
@@ -621,16 +623,15 @@ void glTexParameteriv(GLenum target, GLenum pname, const GLint* params) {
 
 void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels) {
     LOG()
+    if (format == GL_BGRA && (type == GL_UNSIGNED_INT_8_8_8_8 || type == GL_UNSIGNED_INT_8_8_8_8_REV)) {
+        format = GL_RGBA;
+        type = GL_UNSIGNED_BYTE;
+    }
     GET_GL4ES_FUNC(void, glTexSubImage2D, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
     CALL_GL4ES_FUNC(glTexSubImage2D, target, level, xoffset, yoffset, width, height, format, type, pixels)
     LOG_D("glTexSubImage2D, target = %s, level = %d, xoffset = %d, yoffset = %d, width = %d, height = %d, format = %s, type = %s, pixels = 0x%x",
           glEnumToString(target), level, xoffset, yoffset, width, height, glEnumToString(format),
           glEnumToString(type), pixels)
-
-    if (format == GL_BGRA && type == GL_UNSIGNED_INT_8_8_8_8) {
-        format = GL_RGBA;
-        type = GL_UNSIGNED_BYTE;
-    }
 
     GLES.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 
