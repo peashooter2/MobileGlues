@@ -59,6 +59,8 @@ GLAPI GLAPIENTRY void glUniform1i(GLint location, GLint v0);
 
 GLAPI GLAPIENTRY void glDrawArrays(GLenum mode, GLint first, GLsizei count);
 
+GLAPI GLAPIENTRY void glMultiDrawArrays(GLenum mode, const GLint* first, const GLsizei* count, GLsizei drawcount);
+
 #ifdef __cplusplus
 }
 #endif

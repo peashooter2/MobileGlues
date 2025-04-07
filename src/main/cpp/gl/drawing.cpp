@@ -332,6 +332,13 @@ void glMultiDrawElementsBaseVertex(GLenum mode, GLsizei* counts, GLenum type, co
     CHECK_GL_ERROR
 }
 
+void glMultiDrawArrays(GLenum mode, const GLint* first, const GLsizei* count, GLsizei drawcount) {
+    for (GLsizei i = 0; i < drawcount; ++i) {
+        GLES.glDrawArrays(mode, first[i], count[i]);
+    }
+    CHECK_GL_ERROR
+}
+
 void glDrawArrays(GLenum mode, GLint first, GLsizei count) {
     LOG()
     
