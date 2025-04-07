@@ -202,7 +202,7 @@ void glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
     GET_GL4ES_FUNC(void, glTexParameterf, GLenum target, GLenum pname, GLfloat param)
     CALL_GL4ES_FUNC(glTexParameterf, target, pname, param)
     pname = pname_convert(pname);
-    LOG_D("glTexParameterf, target: %d, pname: %d, param: %f", target, pname, param)
+    LOG_D("glTexParameterf, target: %s, pname: %s, param: %f", glEnumToString(target), glEnumToString(pname), param)
 
     if (pname == GL_TEXTURE_LOD_BIAS_QCOM && !g_gles_caps.GL_QCOM_texture_lod_bias) {
         LOG_D("Does not support GL_QCOM_texture_lod_bias, skipped!")
