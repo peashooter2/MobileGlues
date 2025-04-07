@@ -68,6 +68,22 @@ void glGetIntegerv(GLenum pname, GLint *params) {
         case GL_VERTEX_ARRAY_BINDING:
             (*params) = (int) find_bound_array();
             break;
+        case GL_MAX_ATTRIB_STACK_DEPTH:
+            *params = 16;
+            LOG_D("  -> %d", *params)
+            break;
+        case GL_MAX_MODELVIEW_STACK_DEPTH:
+            *params = 16;
+            LOG_D("  -> %d", *params)
+            break;
+        case GL_MAX_PROJECTION_STACK_DEPTH:
+            *params = 2;
+            LOG_D("  -> %d", *params)
+            break;
+        case GL_MAX_TEXTURE_STACK_DEPTH:
+            *params = 2;
+            LOG_D("  -> %d", *params)
+            break;
         default:
             GLES.glGetIntegerv(pname, params);
             LOG_D("  -> %d", *params)
