@@ -59,13 +59,13 @@ void gl4es_blitTexture_gles1(GLuint texture,
         LOAD_GLES(glTexParameteriv);
         // setup texture first
         int sourceRect[4] = {sx, sy, width, height};
-        {} //STUB of gl4es_gles_glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, sourceRect);
+        gl4es_gles_glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_CROP_RECT_OES, sourceRect);
         // take x/y of ViewPort into account
         GLfloat dx = (customvp)?0.0f:glstate->raster.viewport.x;
         GLfloat dy = (customvp)?0.0f:glstate->raster.viewport.y;
         //TODO: do something with width / height of ViewPort?
         // then draw it
-        {} //STUB of gl4es_gles_glDrawTexf(x+dx, y+dy, 0.0f, width, height);
+        gl4es_gles_glDrawTexf(x+dx, y+dy, 0.0f, width, height);
     } else {
         LOAD_GLES(glVertexPointer);
         LOAD_GLES(glTexCoordPointer);
@@ -109,18 +109,18 @@ void gl4es_blitTexture_gles1(GLuint texture,
             pushViewport(0,0,vpwidth, vpheight);
         
         fpe_glEnableClientState(GL_VERTEX_ARRAY);
-        {} //STUB of gl4es_gles_glVertexPointer(2, GL_FLOAT, 0, blit_vert);
+        gl4es_gles_glVertexPointer(2, GL_FLOAT, 0, blit_vert);
         fpe_glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        {} //STUB of gl4es_gles_glTexCoordPointer(2, GL_FLOAT, 0, blit_tex);
+        gl4es_gles_glTexCoordPointer(2, GL_FLOAT, 0, blit_tex);
         for (int a=1; a <hardext.maxtex; a++)
             if(glstate->gleshard->vertexattrib[ATT_MULTITEXCOORD0+a].enabled) {
-                {} //STUB of gl4es_gles_glClientActiveTexture(GL_TEXTURE0 + a);
+                gl4es_gles_glClientActiveTexture(GL_TEXTURE0 + a);
                 fpe_glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             }
-        {} //STUB of gl4es_gles_glClientActiveTexture(GL_TEXTURE0);
+        gl4es_gles_glClientActiveTexture(GL_TEXTURE0);
         fpe_glDisableClientState(GL_COLOR_ARRAY);
         fpe_glDisableClientState(GL_NORMAL_ARRAY);
-        {} //STUB of gl4es_gles_glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        gl4es_gles_glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         if(customvp)
             popViewport();
@@ -203,8 +203,8 @@ void gl4es_blitTexture_gles2(GLuint texture,
         const char *src[1];
         src[0] = _blit_fsh;
         glstate->blit->pixelshader = gl4es_gles_glCreateShader( GL_FRAGMENT_SHADER );
-        {} //STUB of gl4es_gles_glShaderSource( glstate->blit->pixelshader, 1, (const char**) src, NULL );
-        {} //STUB of gl4es_gles_glCompileShader( glstate->blit->pixelshader );
+        gl4es_gles_glShaderSource( glstate->blit->pixelshader, 1, (const char**) src, NULL );
+        gl4es_gles_glCompileShader( glstate->blit->pixelshader );
       gl4es_gles_glGetShaderiv( glstate->blit->pixelshader, GL_COMPILE_STATUS, &success );
         if (!success)
         {
@@ -218,8 +218,8 @@ void gl4es_blitTexture_gles2(GLuint texture,
     
         src[0] = _blit_fsh_alpha;
         glstate->blit->pixelshader_alpha = gl4es_gles_glCreateShader( GL_FRAGMENT_SHADER );
-        {} //STUB of gl4es_gles_glShaderSource( glstate->blit->pixelshader_alpha, 1, (const char**) src, NULL );
-        {} //STUB of gl4es_gles_glCompileShader( glstate->blit->pixelshader_alpha );
+        gl4es_gles_glShaderSource( glstate->blit->pixelshader_alpha, 1, (const char**) src, NULL );
+        gl4es_gles_glCompileShader( glstate->blit->pixelshader_alpha );
       gl4es_gles_glGetShaderiv( glstate->blit->pixelshader_alpha, GL_COMPILE_STATUS, &success );
         if (!success)
         {
@@ -233,8 +233,8 @@ void gl4es_blitTexture_gles2(GLuint texture,
     
         src[0] = _blit_vsh;
         glstate->blit->vertexshader = gl4es_gles_glCreateShader( GL_VERTEX_SHADER );
-        {} //STUB of gl4es_gles_glShaderSource( glstate->blit->vertexshader, 1, (const char**) src, NULL );
-        {} //STUB of gl4es_gles_glCompileShader( glstate->blit->vertexshader );
+        gl4es_gles_glShaderSource( glstate->blit->vertexshader, 1, (const char**) src, NULL );
+        gl4es_gles_glCompileShader( glstate->blit->vertexshader );
       gl4es_gles_glGetShaderiv( glstate->blit->vertexshader, GL_COMPILE_STATUS, &success );
         if( !success )
         {
@@ -248,8 +248,8 @@ void gl4es_blitTexture_gles2(GLuint texture,
     
         src[0] = _blit_vsh_alpha;
         glstate->blit->vertexshader_alpha = gl4es_gles_glCreateShader( GL_VERTEX_SHADER );
-        {} //STUB of gl4es_gles_glShaderSource( glstate->blit->vertexshader_alpha, 1, (const char**) src, NULL );
-        {} //STUB of gl4es_gles_glCompileShader( glstate->blit->vertexshader_alpha );
+        gl4es_gles_glShaderSource( glstate->blit->vertexshader_alpha, 1, (const char**) src, NULL );
+        gl4es_gles_glCompileShader( glstate->blit->vertexshader_alpha );
       gl4es_gles_glGetShaderiv( glstate->blit->vertexshader_alpha, GL_COMPILE_STATUS, &success );
         if( !success )
         {
@@ -262,11 +262,11 @@ void gl4es_blitTexture_gles2(GLuint texture,
         }
 
         glstate->blit->program = gl4es_gles_glCreateProgram();
-        {} //STUB of gl4es_gles_glBindAttribLocation( glstate->blit->program, 0, "aPosition" );
-        {} //STUB of gl4es_gles_glBindAttribLocation( glstate->blit->program, 1, "aTexCoord" );
-        {} //STUB of gl4es_gles_glAttachShader( glstate->blit->program, glstate->blit->pixelshader );
-        {} //STUB of gl4es_gles_glAttachShader( glstate->blit->program, glstate->blit->vertexshader );
-        {} //STUB of gl4es_gles_glLinkProgram( glstate->blit->program );
+        gl4es_gles_glBindAttribLocation( glstate->blit->program, 0, "aPosition" );
+        gl4es_gles_glBindAttribLocation( glstate->blit->program, 1, "aTexCoord" );
+        gl4es_gles_glAttachShader( glstate->blit->program, glstate->blit->pixelshader );
+        gl4es_gles_glAttachShader( glstate->blit->program, glstate->blit->vertexshader );
+        gl4es_gles_glLinkProgram( glstate->blit->program );
       gl4es_gles_glGetProgramiv( glstate->blit->program, GL_LINK_STATUS, &success );
         if( !success )
         {
@@ -275,15 +275,15 @@ void gl4es_blitTexture_gles2(GLuint texture,
             glstate->blit = NULL;
         }
         GLuint oldprog = glstate->gleshard->program;
-        {} //STUB of gl4es_gles_glUseProgram(glstate->blit->program);
-        {} //STUB of gl4es_gles_glUniform1i( gl4es_gles_glGetUniformLocation( glstate->blit->program, "uTex" ), 0 );
+        gl4es_gles_glUseProgram(glstate->blit->program);
+        gl4es_gles_glUniform1i( gl4es_gles_glGetUniformLocation( glstate->blit->program, "uTex" ), 0 );
 
         glstate->blit->program_alpha = gl4es_gles_glCreateProgram();
-        {} //STUB of gl4es_gles_glBindAttribLocation( glstate->blit->program_alpha, 0, "aPosition" );
-        {} //STUB of gl4es_gles_glBindAttribLocation( glstate->blit->program_alpha, 1, "aTexCoord" );
-        {} //STUB of gl4es_gles_glAttachShader( glstate->blit->program_alpha, glstate->blit->pixelshader_alpha );
-        {} //STUB of gl4es_gles_glAttachShader( glstate->blit->program_alpha, glstate->blit->vertexshader_alpha );
-        {} //STUB of gl4es_gles_glLinkProgram( glstate->blit->program_alpha );
+        gl4es_gles_glBindAttribLocation( glstate->blit->program_alpha, 0, "aPosition" );
+        gl4es_gles_glBindAttribLocation( glstate->blit->program_alpha, 1, "aTexCoord" );
+        gl4es_gles_glAttachShader( glstate->blit->program_alpha, glstate->blit->pixelshader_alpha );
+        gl4es_gles_glAttachShader( glstate->blit->program_alpha, glstate->blit->vertexshader_alpha );
+        gl4es_gles_glLinkProgram( glstate->blit->program_alpha );
       gl4es_gles_glGetProgramiv( glstate->blit->program_alpha, GL_LINK_STATUS, &success );
         if( !success )
         {
@@ -291,9 +291,9 @@ void gl4es_blitTexture_gles2(GLuint texture,
             free(glstate->blit);
             glstate->blit = NULL;
         }
-        {} //STUB of gl4es_gles_glUseProgram(glstate->blit->program_alpha);
-        {} //STUB of gl4es_gles_glUniform1i( gl4es_gles_glGetUniformLocation( glstate->blit->program_alpha, "uTex" ), 0 );
-        {} //STUB of gl4es_gles_glUseProgram(oldprog);
+        gl4es_gles_glUseProgram(glstate->blit->program_alpha);
+        gl4es_gles_glUniform1i( gl4es_gles_glGetUniformLocation( glstate->blit->program_alpha, "uTex" ), 0 );
+        gl4es_gles_glUseProgram(oldprog);
     }
 
     int customvp = (vpwidth>0.0);
@@ -333,7 +333,7 @@ void gl4es_blitTexture_gles2(GLuint texture,
 
     realize_blitenv(alpha);
 
-    {} //STUB of gl4es_gles_glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    gl4es_gles_glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 void gl4es_blitTexture(GLuint texture, 
@@ -373,7 +373,7 @@ void gl4es_blitTexture(GLuint texture,
 #ifdef TEXSTREAM
     if(glstate->bound_stream[0] && hardext.esversion==1) {
 //SHUT_LOGD("MobileGlues-gl4es: TMU%d, turning off Streaming (blit)\n", 0);
-        {} //STUB of gl4es_gles_glDisable(GL_TEXTURE_STREAM_IMG);
+        gl4es_gles_glDisable(GL_TEXTURE_STREAM_IMG);
         DeactivateStreaming();
     }
 #endif
@@ -392,9 +392,9 @@ void gl4es_blitTexture(GLuint texture,
                                 nwidth, nheight, zoomx, zoomy, 
                                 vpwidth, vpheight, x, y, mode);
         if(!IS_TEX2D(tmp))
-            {} //STUB of gl4es_gles_glDisable(GL_TEXTURE_2D);
+            gl4es_gles_glDisable(GL_TEXTURE_2D);
         if(IS_CUBE_MAP(tmp))
-            {} //STUB of gl4es_gles_glEnable(GL_TEXTURE_CUBE_MAP);
+            gl4es_gles_glEnable(GL_TEXTURE_CUBE_MAP);
     } else {
         gl4es_blitTexture_gles2(texture, sx, sy, width, height, 
             nwidth, nheight, zoomx, zoomy, 
@@ -407,7 +407,7 @@ void gl4es_blitTexture(GLuint texture,
 //SHUT_LOGD("MobileGlues-gl4es: TMU%d, turning ON  Streaming (blit)\n", 0);
         gltexture_t *tex = glstate->texture.bound[0][ENABLED_TEX2D];
         ActivateStreaming(tex->streamingID);
-        {} //STUB of gl4es_gles_glEnable(GL_TEXTURE_STREAM_IMG);
+        gl4es_gles_glEnable(GL_TEXTURE_STREAM_IMG);
     } else
 #endif
     if (glstate->actual_tex2d[0] != texture) 
