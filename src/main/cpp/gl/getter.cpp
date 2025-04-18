@@ -134,6 +134,7 @@ void InitGLESBaseExtensions() {
              "OpenGL31 "
              "OpenGL32 "
              "OpenGL33 "
+             "GL_EXT_framebuffer_object "
              "OpenGL40 "
              "GL_ARB_shader_storage_buffer_object "
              "GL_ARB_shader_image_load_store "

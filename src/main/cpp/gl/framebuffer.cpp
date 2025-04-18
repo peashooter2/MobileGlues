@@ -209,3 +209,70 @@ void glGenFramebuffers(GLsizei n, GLuint *framebuffers) {
     gl4es_glGenFramebuffers(n, framebuffers, framebuffers);
     CHECK_GL_ERROR
 }
+
+extern "C" {
+EXPORT GLboolean glIsRenderbufferEXT(GLuint renderbuffer) {
+    return glIsRenderbuffer(renderbuffer);
+}
+
+EXPORT void glBindRenderbufferEXT(GLenum target, GLuint renderbuffer) {
+    glBindRenderbuffer(target, renderbuffer);
+}
+
+EXPORT void glDeleteRenderbuffersEXT(GLsizei n, const GLuint *renderbuffers) {
+    glDeleteRenderbuffers(n, renderbuffers);
+}
+
+EXPORT void glGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers) {
+    glGenRenderbuffers(n, renderbuffers);
+}
+
+EXPORT void glRenderbufferStorageEXT(GLenum target, GLenum internalformat, 
+                                   GLsizei width, GLsizei height) {
+    glRenderbufferStorage(target, internalformat, width, height);
+}
+
+EXPORT void glGetRenderbufferParameterivEXT(GLenum target, GLenum pname, GLint *params) {
+    glGetRenderbufferParameteriv(target, pname, params);
+}
+
+EXPORT GLboolean glIsFramebufferEXT(GLuint framebuffer) {
+    return glIsFramebuffer(framebuffer);
+}
+
+EXPORT void glBindFramebufferEXT(GLenum target, GLuint framebuffer) {
+    glBindFramebuffer(target, framebuffer);
+}
+
+EXPORT void glDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers) {
+    glDeleteFramebuffers(n, framebuffers);
+}
+
+EXPORT void glGenFramebuffersEXT(GLsizei n, GLuint *framebuffers) {
+    glGenFramebuffers(n, framebuffers);
+}
+
+EXPORT GLenum glCheckFramebufferStatusEXT(GLenum target) {
+    return glCheckFramebufferStatus(target);
+}
+
+EXPORT void glFramebufferTexture2DEXT(GLenum target, GLenum attachment,
+                                    GLenum textarget, GLuint texture, GLint level) {
+    glFramebufferTexture2D(target, attachment, textarget, texture, level);
+}
+
+EXPORT void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment,
+                                       GLenum renderbuffertarget, GLuint renderbuffer) {
+    glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+}
+
+EXPORT void glGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment,
+                                                    GLenum pname, GLint *params) {
+    glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+}
+
+EXPORT void glGenerateMipmapEXT(GLenum target) {
+    glGenerateMipmap(target);
+}
+
+}
