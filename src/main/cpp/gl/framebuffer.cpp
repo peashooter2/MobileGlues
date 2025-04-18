@@ -275,4 +275,132 @@ EXPORT void glGenerateMipmapEXT(GLenum target) {
     glGenerateMipmap(target);
 }
 
+EXPORT void glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples,
+                                                GLenum internalformat,
+                                                GLsizei width, GLsizei height) {
+    glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
+}
+
+EXPORT void glBlitFramebufferEXT(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                                 GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                                 GLbitfield mask, GLenum filter) {
+    glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
+                      dstX0, dstY0, dstX1, dstY1,
+                      mask, filter);
+}
+
+EXPORT void glBlitFramebufferLayersEXT(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                                       GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                                       GLbitfield mask, GLenum filter) {
+    //glBlitFramebufferLayers(srcX0, srcY0, srcX1, srcY1,
+    //                        dstX0, dstY0, dstX1, dstY1,
+    //                        mask, filter);
+}
+
+EXPORT void glBlitFramebufferLayerEXT(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                                      GLint srcLayer,
+                                      GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                                      GLint dstLayer,
+                                      GLbitfield mask, GLenum filter) {
+    //glBlitFramebufferLayer(srcX0, srcY0, srcX1, srcY1,
+    //                       srcLayer,
+    //                       dstX0, dstY0, dstX1, dstY1,
+    //                       dstLayer,
+    //                       mask, filter);
+}
+EXPORT GLboolean glIsRenderbufferARB(GLuint renderbuffer) {
+    return glIsRenderbuffer(renderbuffer);
+}
+
+EXPORT void glBindRenderbufferARB(GLenum target, GLuint renderbuffer) {
+    glBindRenderbuffer(target, renderbuffer);
+}
+
+EXPORT void glDeleteRenderbuffersARB(GLsizei n, const GLuint *renderbuffers) {
+    glDeleteRenderbuffers(n, renderbuffers);
+}
+
+EXPORT void glGenRenderbuffersARB(GLsizei n, GLuint *renderbuffers) {
+    glGenRenderbuffers(n, renderbuffers);
+}
+
+EXPORT void glRenderbufferStorageARB(GLenum target, GLenum internalformat,
+                                     GLsizei width, GLsizei height) {
+    glRenderbufferStorage(target, internalformat, width, height);
+}
+
+EXPORT void glRenderbufferStorageMultisampleARB(GLenum target, GLsizei samples,
+                                                GLenum internalformat,
+                                                GLsizei width, GLsizei height) {
+    glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
+}
+
+EXPORT void glGetRenderbufferParameterivARB(GLenum target, GLenum pname, GLint *params) {
+    glGetRenderbufferParameteriv(target, pname, params);
+}
+
+EXPORT GLboolean glIsFramebufferARB(GLuint framebuffer) {
+    return glIsFramebuffer(framebuffer);
+}
+
+EXPORT void glBindFramebufferARB(GLenum target, GLuint framebuffer) {
+    glBindFramebuffer(target, framebuffer);
+}
+
+EXPORT void glDeleteFramebuffersARB(GLsizei n, const GLuint *framebuffers) {
+    glDeleteFramebuffers(n, framebuffers);
+}
+
+EXPORT void glGenFramebuffersARB(GLsizei n, GLuint *framebuffers) {
+    glGenFramebuffers(n, framebuffers);
+}
+
+EXPORT GLenum glCheckFramebufferStatusARB(GLenum target) {
+    return glCheckFramebufferStatus(target);
+}
+
+EXPORT void glFramebufferTexture1DARB(GLenum target, GLenum attachment,
+                                      GLenum textarget, GLuint texture, GLint level) {
+    //glFramebufferTexture1D(target, attachment, textarget, texture, level);
+}
+
+EXPORT void glFramebufferTexture2DARB(GLenum target, GLenum attachment,
+                                      GLenum textarget, GLuint texture, GLint level) {
+    glFramebufferTexture2D(target, attachment, textarget, texture, level);
+}
+
+EXPORT void glFramebufferTexture3DARB(GLenum target, GLenum attachment,
+                                      GLenum textarget, GLuint texture,
+                                      GLint level, GLint layer) {
+    //glFramebufferTexture3D(target, attachment, textarget, texture, level, layer);
+}
+
+EXPORT void glFramebufferTextureLayerARB(GLenum target, GLenum attachment,
+                                         GLuint texture, GLint level, GLint layer) {
+    glFramebufferTextureLayer(target, attachment, texture, level, layer);
+}
+
+EXPORT void glFramebufferRenderbufferARB(GLenum target, GLenum attachment,
+                                         GLenum renderbuffertarget, GLuint renderbuffer) {
+    glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+}
+
+EXPORT void glGetFramebufferAttachmentParameterivARB(GLenum target, GLenum attachment,
+                                                     GLenum pname, GLint *params) {
+    glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+}
+
+EXPORT void glBlitFramebufferARB(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                                 GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                                 GLbitfield mask, GLenum filter) {
+    glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
+                      dstX0, dstY0, dstX1, dstY1,
+                      mask, filter);
+}
+
+EXPORT void glGenerateMipmapARB(GLenum target) {
+    glGenerateMipmap(target);
+}
+
+
 }
