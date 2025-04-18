@@ -51,6 +51,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         config/config.cpp
         config/gpu_utils.cpp
         config/settings.cpp
+        gl/glsl/glslconv_gl4es.cpp
 
         gl/gl4es/gl/string_utils.c
         gl/gl4es/gl/arbconverter.c
