@@ -110,3 +110,43 @@ void glGetShaderiv(GLuint shader, GLenum pname, GLint *params) {
     }
     CHECK_GL_ERROR
 }
+
+extern "C" {
+EXPORT void glDeleteObjectARB(GLhandleARB obj) {
+    glDeleteProgram(obj);
+}
+
+EXPORT GLhandleARB glGetHandleARB(GLenum pname) {
+    return glGetHandleARB(pname);
+}
+
+EXPORT void glDetachObjectARB(GLhandleARB containerObj, GLhandleARB attachedObj) {
+    glDetachShader(containerObj, attachedObj);
+}
+
+EXPORT GLhandleARB glCreateShaderObjectARB(GLenum shaderType) {
+    return glCreateShader(shaderType);
+}
+
+EXPORT void glShaderSourceARB(GLhandleARB shaderObj, GLsizei count,
+                              const GLchar **string, const GLint *length) {
+    glShaderSource(shaderObj, count, string, length);
+}
+
+EXPORT GLhandleARB glCreateProgramObjectARB(void) {
+    return glCreateProgram();
+}
+
+EXPORT void glAttachObjectARB(GLhandleARB containerObj, GLhandleARB obj) {
+    glAttachShader(containerObj, obj);
+}
+
+EXPORT void glLinkProgramARB(GLhandleARB programObj) {
+    glLinkProgram(programObj);
+}
+
+EXPORT void glUseProgramObjectARB(GLhandleARB programObj) {
+    glUseProgram(programObj);
+}
+
+}
