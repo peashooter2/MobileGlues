@@ -122,6 +122,7 @@ static inline void errorGL() {	// next glGetError will be from GL
         glstate->type_error = 1;    // will need to read glGetError...
 }
 static inline void errorShim(GLenum error) {	// next glGetError will be "error" from gl4es
+    DBG(LOGD("    -> error set: %d", error))
     if(glstate->type_error && glstate->shim_error==GL_NO_ERROR)
 	    glstate->type_error = 1;
     if(glstate->shim_error == GL_NO_ERROR)

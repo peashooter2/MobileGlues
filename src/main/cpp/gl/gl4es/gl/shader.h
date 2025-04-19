@@ -35,6 +35,7 @@ struct shader_s {
     char*           converted;  // converted source (or null if nothing)
     // shaderconv
     shaderconv_need_t  need;    // the varying need / provide of the shader
+    int is_gl4es_conv_shader;
 }; // shader_t defined in oldprogram.h
 
 KHASH_MAP_DECLARE_INT(shaderlist, struct shader_s *);

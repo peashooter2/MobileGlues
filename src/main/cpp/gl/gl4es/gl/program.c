@@ -11,7 +11,7 @@
 #include "shaderconv.h"
 #include "fpe_shader.h"
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define DBG(a) a
 #else
@@ -46,11 +46,12 @@ void APIENTRY_GL4ES gl4es_glAttachShader(GLuint program, GLuint shader) {
     // send to hadware
     LOAD_GLES2(glAttachShader);
     if(gl4es_gles_glAttachShader) {
-        if(strstr((glshader->converted)?glshader->converted:glshader->source, "FPE")!=NULL) {
-            gl4es_gles_glAttachShader(glprogram->id, glshader->id);
+        if(glshader->is_gl4es_conv_shader) {
+//            gl4es_gles_glAttachShader(glprogram->id, glshader->id);
+            gl4es_gles_glAttachShader(program, glshader->id);
+            // use fronted program id?
         }
-        
-        {} //STUB of gl4es_gles_glAttachShader(glprogram->id, glshader->id);
+
         errorGL();
     } else
         noerrorShim();
@@ -795,10 +796,8 @@ void APIENTRY_GL4ES gl4es_glLinkProgram(GLuint program) {
     if(gl4es_gles_glLinkProgram) {
         LOAD_GLES(glGetError);
         LOAD_GLES2(glGetProgramiv);
-        if(strstr((glprogram->last_vert->converted)?glprogram->last_vert->converted:glprogram->last_vert->source, "FPE")!=NULL) {
-            gl4es_gles_glLinkProgram(glprogram->id);
-        }
-        {} //STUB of gl4es_gles_glLinkProgram(glprogram->id);
+         
+        gl4es_gles_glLinkProgram(glprogram->id);
         GLenum err = gl4es_gles_glGetError();
         // Get Link Status
       gl4es_gles_glGetProgramiv(glprogram->id, GL_LINK_STATUS, &glprogram->linked);

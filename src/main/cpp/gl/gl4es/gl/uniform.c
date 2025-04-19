@@ -1,3 +1,4 @@
+#include <GLES3/gl32.h>
 #include "uniform.h"
 
 #include "../glx/hardext.h"
@@ -227,6 +228,10 @@ void GoUniformiv(program_t *glprogram, GLint location, int size, int count, cons
         return;
     }
     m = kh_value(glprogram->uniform, k);
+    if(m->type == GL_FLOAT && count == 1) {
+        glUniform1f(location, (float)*value);
+        return;
+    }
     if(size != n_uniform(m->type) || !is_uniform_int(m->type)  || count>m->size) {
         errorShim(GL_INVALID_OPERATION);
         return;

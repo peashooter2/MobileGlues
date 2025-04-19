@@ -425,11 +425,14 @@ void initialize_gl4es() {
         globals4es.nointovlhack = 1;
         SHUT_LOGD("MobileGlues-gl4es: No hack in shader converter to define overloaded function with int\n");
     }
+    globals4es.nointovlhack = 1;
     if(GL4ES_IsEnvVarTrue("LIBGL_NOSHADERLOD")) {
         globals4es.noshaderlod = 1;
         SHUT_LOGD("MobileGlues-gl4es: No GL_EXT_shader_texture_lod used even if present\n");
         hardext.shaderlod=0;
     }
+    hardext.shaderlod=0;
+    globals4es.noshaderlod = 1;
 
     int env_begin_end;
     if(GL4ES_GetEnvVarInt("LIBGL_BEGINEND",&env_begin_end,0)) {
@@ -618,7 +621,7 @@ void initialize_gl4es() {
     env(LIBGL_SHADERNOGLES, globals4es.shadernogles, "Remove GLES part in shader");
     env(LIBGL_NOES2COMPAT, globals4es.noes2, "Don't expose GLX_EXT_create_context_es2_profile extension");
     env(LIBGL_NORMALIZE, globals4es.normalize, "Force normals to be normalized on FPE shaders");
-
+    globals4es.normalize=1;
     globals4es.dbgshaderconv=GL4ES_ReturnEnvVarIntDef("LIBGL_DBGSHADERCONV",0);
     if(globals4es.dbgshaderconv) {
       if(globals4es.dbgshaderconv==1)

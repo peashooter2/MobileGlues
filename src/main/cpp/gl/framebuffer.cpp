@@ -350,6 +350,13 @@ EXPORT void glFramebufferTexture3DARB(GLenum target, GLenum attachment,
 EXPORT void glDrawBuffersARB(GLsizei n, const GLenum *bufs) {
     glDrawBuffers(n, bufs);
 }
-
-
+EXPORT void glFramebufferTexture1DEXT(GLenum target, GLenum attachment, GLenum textarget,
+                                      GLuint texture, GLint level) {
+    glFramebufferTexture2D(target, attachment, GL_TEXTURE_2D, texture, level);
+}
+EXPORT void glFramebufferTexture3DEXT(GLenum target, GLenum attachment, GLenum textarget,
+                                      GLuint texture, GLint level, GLint zoffset) {
+    LOG()
+    GLES.glFramebufferTexture3DOES(target, attachment, textarget, texture, level, zoffset);
+}
 }

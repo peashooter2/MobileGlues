@@ -400,7 +400,7 @@ void APIENTRY_GL4ES gl4es_glTexParameterf(GLenum target, GLenum pname, GLfloat p
     gl4es_glTexParameterfv(target, pname, &param);
 }
 void gl4es_glTexParameterf_real(GLenum target, GLenum pname, GLfloat param) {
-    DBG(SHUT_LOGD("MobileGlues-gl4es: glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), params[0], PrintEnum(params[0]));)
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), param, PrintEnum(param));)
     GLfloat* params = &param;
     if(!glstate->list.pending) {
         PUSH_IF_COMPILING(glTexParameterfv);
@@ -462,7 +462,7 @@ void APIENTRY_GL4ES gl4es_glTexParameteri(GLenum target, GLenum pname, GLint par
     gl4es_glTexParameterfv(target, pname, &fparam);
 }
 void gl4es_glTexParameteri_real(GLenum target, GLenum pname, GLint param) {
-    DBG(SHUT_LOGD("MobileGlues-gl4es: glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), params[0], PrintEnum(params[0]));)
+    DBG(SHUT_LOGD("MobileGlues-gl4es: glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), param, PrintEnum(param));)
     if(!glstate->list.pending) {
         GLfloat *params = &param;
         PUSH_IF_COMPILING(glTexParameterfv);

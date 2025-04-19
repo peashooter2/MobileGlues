@@ -88,10 +88,15 @@ void glBindFragDataLocation(GLuint program, GLuint color, const GLchar *name) {
     shaderInfo.frag_data_changed = 1;
 }
 
+extern "C" EXPORT GLuint glCreateProgram() {
+    LOG()
+    GLuint program = gl4es_glCreateProgram();
+    CHECK_GL_ERROR
+    return program;
+}
+
 void glLinkProgram(GLuint program) {
     LOG()
-    GET_GL4ES_FUNC(void, glLinkProgram, GLuint program)
-    CALL_GL4ES_FUNC(glLinkProgram, program)
     LOG_D("glLinkProgram(%d)", program)
     if (!shaderInfo.converted.empty() && shaderInfo.frag_data_changed) {
         GLES.glShaderSource(shaderInfo.id, 1, (const GLchar * const*) &shaderInfo.frag_data_changed_converted, nullptr);
@@ -111,7 +116,9 @@ void glLinkProgram(GLuint program) {
     shaderInfo.converted = "";
     shaderInfo.frag_data_changed_converted = nullptr;
     shaderInfo.frag_data_changed = 0;
-    GLES.glLinkProgram(program);
+    //GLES.glLinkProgram(program);
+    GET_GL4ES_FUNC(void, glLinkProgram, GLuint program)
+    CALL_GL4ES_FUNC(glLinkProgram, program)
 
     CHECK_GL_ERROR
 }
@@ -190,5 +197,14 @@ EXPORT GLint glGetProgramResourceLocationIndex(GLuint program, GLenum programInt
     }
 }
 EXPORT void glGetProgramResourceLocationIndexARB(GLuint program, GLenum programInterface, const char *name) __attribute__((alias("glGetProgramResourceLocationIndex")));
+
+EXPORT void glGetAttachedObjectsARB(GLhandleARB program, GLsizei maxCount, GLsizei* count, GLhandleARB* objects) {
+    if (program == 0 || glIsProgram(program) == GL_FALSE) {
+        return;
+    }
+    glGetAttachedShaders(program, maxCount, count, (GLuint*)objects);
+}
+
+EXPORT GLhandleARB glCreateProgramARB() { return glCreateProgram(); }
 
 }

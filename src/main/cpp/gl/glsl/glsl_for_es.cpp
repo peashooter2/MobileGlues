@@ -705,6 +705,11 @@ std::string process_uniform_declarations(const std::string& glslCode) {
     return result;
 }
 
+extern "C" char* process_uniform_declarations_for_c(char* glslCode) {
+    std::string glslCode_str(glslCode);
+    return strdup(process_uniform_declarations(glslCode_str).c_str());
+}
+
 std::string processOutColorLocations(const std::string& glslCode) {
     const static std::regex pattern(R"(\n(out highp vec4 outColor)(\d+);)");
     const std::string replacement = "\nlayout(location=$2) $1$2;";
@@ -732,13 +737,7 @@ std::string GLSLtoGLSLES(const char* glsl_code, GLenum glsl_type, uint essl_vers
     }
     
     int return_code = -1;
-    //std::string converted = /*glsl_version<140? GLSLtoGLSLES_1(glsl_code, glsl_type, essl_version, return_code):*/GLSLtoGLSLES_2(glsl_code, glsl_type, essl_version, return_code);
-    std::string converted;
-    if (glsl_version<140) {
-        converted = GLSLtoGLSLES_3(glsl_code, glsl_type, essl_version, return_code);
-    } else {
-        converted = GLSLtoGLSLES_2(glsl_code, glsl_type, essl_version, return_code);
-    }
+    std::string converted = /*glsl_version<140? GLSLtoGLSLES_1(glsl_code, glsl_type, essl_version, return_code):*/GLSLtoGLSLES_2(glsl_code, glsl_type, essl_version, return_code);
     if (return_code == 0 && !converted.empty()) {
         converted = process_uniform_declarations(converted);
         Cache::get_instance().put(sha256_string.c_str(), converted.c_str());
@@ -750,6 +749,7 @@ std::string GLSLtoGLSLES(const char* glsl_code, GLenum glsl_type, uint essl_vers
 
 std::string GLSLtoGLSLES_3(const char *glsl_code, GLenum glsl_type, uint essl_version, int& return_code) {
     LOG_W("Warning: use gl4es shaderconv to convert shader.")
+    /*
     gl4es_code::GL4ES_shaderconv_need_t need;
     need.need_texcoord = -1;
     int shaderCompileStatus;
@@ -775,6 +775,7 @@ std::string GLSLtoGLSLES_3(const char *glsl_code, GLenum glsl_type, uint essl_ve
     LOG_D("converted:\n%s", converted)
     return_code = 0;
     return std::string(converted);
+     */
 }
 
 std::string replace_line_starting_with(const std::string& glslCode, const std::string& starting, const std::string& substitution = "") {

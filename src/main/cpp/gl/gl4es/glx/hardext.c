@@ -424,23 +424,29 @@ void GetHardwareExtensions(int notest)
         hardext.vendor = VEND_ARM;
     else if(strstr(vendor, "Imagination Technologies"))
         hardext.vendor = VEND_IMGTEC;
-    if(hardext.esversion>1) {
-        if(testGLSL("#version 120", 1))
-            hardext.glsl120 = 1;
-        if(testGLSL("#version 300 es", 0))
-            hardext.glsl300es = 1;
-        if(testGLSL("#version 310 es", 1))
-            hardext.glsl310es = 1;
-    }
-    if(hardext.glsl120) {
-        SHUT_LOGD("MobileGlues-gl4es: GLSL 120 supported and used\n");
-    }
-    if(hardext.glsl300es) {
-        SHUT_LOGD("MobileGlues-gl4es: GLSL 300 es supported%s\n", (hardext.glsl120||hardext.glsl310es)?"":" and used");
-    }
-    if(hardext.glsl310es) {
-        SHUT_LOGD("MobileGlues-gl4es: GLSL 310 es supported%s\n", hardext.glsl120?"":" and used");
-    }
+
+    hardext.glsl120 = 0;
+    hardext.glsl300es = 1;
+    hardext.glsl310es = 1;
+    // TODO: Check gles caps
+    
+    //if(hardext.esversion>1) {
+    //    if(testGLSL("#version 120", 1))
+    //        hardext.glsl120 = 1;
+    //    if(testGLSL("#version 300 es", 0))
+    //        hardext.glsl300es = 1;
+    //    if(testGLSL("#version 310 es", 1))
+    //        hardext.glsl310es = 1;
+    //}
+    //if(hardext.glsl120) {
+    //    SHUT_LOGD("MobileGlues-gl4es: GLSL 120 supported and used\n");
+    //}
+    //if(hardext.glsl300es) {
+    //    SHUT_LOGD("MobileGlues-gl4es: GLSL 300 es supported%s\n", (hardext.glsl120||hardext.glsl310es)?"":" and used");
+    //}
+    //if(hardext.glsl310es) {
+    //    SHUT_LOGD("MobileGlues-gl4es: GLSL 310 es supported%s\n", hardext.glsl120?"":" and used");
+    //}
 
 #ifndef NOEGL
     if(strstr(gl4es_egl_eglQueryString(eglDisplay, EGL_EXTENSIONS), "EGL_KHR_gl_colorspace")) {

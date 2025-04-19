@@ -8,6 +8,67 @@ const char* AllSeparators = " \t\n\r.,;()[]{}-<>+*/%&\\\"'^$=!:?";
 
 char* gl4es_resize_if_needed(char* pBuffer, int *size, int addsize);
 
+void AppendToEnd(char **str, const char *suffix) {
+    size_t len = strlen(*str);
+    size_t suffixLen = strlen(suffix);
+    char *newStr = (char *)malloc(len + suffixLen + 1);
+    if (newStr == NULL) {
+        return;
+    }
+    strcpy(newStr, *str);
+    strcpy(newStr + len, suffix);
+    free(*str);
+    *str = newStr;
+}
+void InsertAtBeginning(char **str, const char *prefix) {
+    size_t len = strlen(*str);
+    size_t prefixLen = strlen(prefix);
+    char *newStr = (char *)malloc(len + prefixLen + 1);
+    strcpy(newStr, prefix);
+    strcpy(newStr + prefixLen, *str);
+    free(*str);
+    *str = newStr;
+}
+
+
+char * InplaceReplaceByIndex(char* pBuffer, int* size, const int startIndex, const int endIndex, const char* replacement)
+{
+    //printf("BY INDEX: %s", replacement);
+    //printf("BY INDEX: %i", strlen(replacement));
+    int length_difference;
+    if(endIndex < startIndex)
+        length_difference = strlen(replacement) + (endIndex - startIndex);
+    else if(endIndex == startIndex)
+        length_difference = strlen(replacement) - 1; // The initial char gets replaced
+    else
+        length_difference = strlen(replacement) - (endIndex - startIndex); // Can be negative if repl is smaller
+    pBuffer = gl4es_resize_if_needed(pBuffer, size, length_difference);
+    //printf("BEFORE MOVING: \n%s", pBuffer);
+    // Move the end of the string
+    memmove(pBuffer + startIndex + strlen(replacement) , pBuffer + endIndex + 1, strlen(pBuffer) - endIndex + 1);
+    //printf("AFTER MOVING 1: \n%s", pBuffer);
+    // Insert the replacement
+    memcpy(pBuffer + startIndex, replacement, strlen(replacement));
+    //strncpy(pBuffer + startIndex, replacement, strlen(replacement));
+    //printf("AFTER MOVING 2: \n%s", pBuffer);
+    return pBuffer;
+}
+/**
+ * Insert the string at the index, pushing "every chars to the right"
+ * @param source The shader as a string
+ * @param sourceLength The ALLOCATED length of the shader
+ * @param insertPoint The index at which the string is inserted.
+ * @param insertedString The string to insert
+ * @return The shader as a string, maybe in a different memory location
+ */
+char * InplaceInsertByIndex(char * source, int *sourceLength, const int insertPoint, const char *insertedString){
+    int insertLength = strlen(insertedString);
+    source = gl4es_resize_if_needed(source, sourceLength, insertLength);
+    memmove(source + insertPoint + insertLength,  source + insertPoint, strlen(source) - insertPoint + 1);
+    memcpy(source + insertPoint, insertedString, insertLength);
+    return source;
+}
+
 char* gl4es_inplace_replace(char* pBuffer, int* size, const char* S, const char* D)
 {
     int lS = strlen(S), lD = strlen(D);
@@ -26,7 +87,7 @@ char* gl4es_inplace_replace(char* pBuffer, int* size, const char* S, const char*
             p+=lD;
         } else p+=lS;
     }
-    
+
     return pBuffer;
 }
 
@@ -129,11 +190,19 @@ char* gl4es_resize_if_needed(char* pBuffer, int *size, int addsize) {
     char* p = pBuffer;
     int newsize = strlen(pBuffer)+addsize+1;
     if (newsize>*size) {
-        newsize += 100;
+        //newsize += 100;
         p = (char*)realloc(pBuffer, newsize);
         *size=newsize;
     }
     return p;
+}
+
+int isDigit(char value){
+    return (value >= '0' && value <= '9');
+}
+
+int isValidFunctionName(char value){
+    return ((value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z') || (value == '_'));
 }
 
 char* gl4es_append(char* pBuffer, int* size, const char* S) {
@@ -243,6 +312,27 @@ char* gl4es_inplace_replace_simple(char* pBuffer, int* size, const char* S, cons
         // next
         p+=lD;
     }
-    
+
     return pBuffer;
 }
+
+
+// for vgpu/shaderconv.c
+const char* FindString(const char* pBuffer, const char* S) __attribute__((alias("gl4es_find_string")));
+char* FindStringNC(char* pBuffer, const char* S) __attribute__((alias("gl4es_find_string_nc")));
+int CountString(const char* pBuffer, const char* S) __attribute__((alias("gl4es_count_string")));
+char* ResizeIfNeeded(char* pBuffer, int *size, int addsize) __attribute__((alias("gl4es_resize_if_needed")));
+char* InplaceReplace(char* pBuffer, int* size, const char* S, const char* D) __attribute__((alias("gl4es_inplace_replace")));
+char* Append(char* pBuffer, int* size, const char* S) __attribute__((alias("gl4es_append")));
+char* InplaceInsert(char* pBuffer, const char* S, char* master, int* size) __attribute__((alias("gl4es_inplace_insert")));
+char* GetLine(char* pBuffer, int num) __attribute__((alias("gl4es_getline")));
+int CountLine(const char* pBuffer) __attribute__((alias("gl4es_countline")));
+int GetLineFor(const char* pBuffer, const char* S) __attribute__((alias("gl4es_getline_for")));
+char* StrNext(char *pBuffer, const char* S) __attribute__((alias("gl4es_str_next")));
+char* NextStr(char* pBuffer) __attribute__((alias("gl4es_next_str")));
+char* PrevStr(char* Str, char* pBuffer) __attribute__((alias("gl4es_prev_str")));
+char* NextBlank(char* pBuffer) __attribute__((alias("gl4es_next_blank")));
+char* NextLine(char* pBuffer) __attribute__((alias("gl4es_next_line")));
+const char* GetNextStr(char* pBuffer) __attribute__((alias("gl4es_get_next_str")));
+int CountStringSimple(char* pBuffer, const char* S) __attribute__((alias("gl4es_countstring_simple")));
+char* InplaceReplaceSimple(char* pBuffer, int* size, const char* S, const char* D) __attribute__((alias("gl4es_inplace_replace_simple")));

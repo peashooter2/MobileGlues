@@ -40,10 +40,22 @@ bool is_direct_shader(const char *glsl)
     return es3_ability;
 }
 
+extern "C" EXPORT GLuint glCreateShader(GLenum type) {
+    LOG()
+    GLuint shader = gl4es_glCreateShader(type);
+    CHECK_GL_ERROR
+    return shader;
+}
+
+extern "C" EXPORT void glCompileShader(GLuint shader) {
+    LOG()
+    gl4es_glCompileShader(shader);
+    CHECK_GL_ERROR
+}
+
 void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, const GLint *length) {
     LOG()
-    GET_GL4ES_FUNC(void, glShaderSource, GLuint shader, GLsizei count, const GLchar *const* string, const GLint *length)
-    CALL_GL4ES_FUNC(glShaderSource, shader, count, string, length)
+    gl4es_glShaderSource(shader,count,string,length);
     shaderInfo.id = 0;
     shaderInfo.converted = "";
     shaderInfo.frag_data_changed = 0;
@@ -69,6 +81,7 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, c
             essl_src = glsl_src;
         } else {
             int glsl_version = getGLSLVersion(glsl_src.c_str());
+            if (glsl_version < 140) { LOG_D("Shader won't be processed in mg shaderconv."); return; } // will be converted in gl4es
             LOG_D("[INFO] [Shader] Shader source: ")
             LOG_D("%s", glsl_src.c_str())
             GLint shaderType;
@@ -87,9 +100,7 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar *const* string, c
             shaderInfo.converted = essl_src;
             const char* s[] = { essl_src.c_str() };
             GLES.glShaderSource(shader, count, s, nullptr);
-        }
-        else
-        LOG_E("Failed to convert glsl.")
+        } else LOG_E("Failed to convert glsl.")
         CHECK_GL_ERROR
     } else {
         LOG_E("No GLES.glShaderSource")
@@ -208,6 +219,9 @@ EXPORT void glVertexAttrib4bvARB(GLuint index, const GLbyte *v) { glVertexAttrib
 EXPORT void glVertexAttrib4ubvARB(GLuint index, const GLubyte *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
 EXPORT void glVertexAttrib4usvARB(GLuint index, const GLushort *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
 EXPORT void glVertexAttrib4uivARB(GLuint index, const GLuint *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+
+EXPORT void glCompileShaderARB(GLhandleARB shader) { glCompileShader(shader); }
+EXPORT GLhandleARB glCreateShaderARB(GLenum shaderType) { return glCreateShader(shaderType); }
 
 //EXPORT void glVertexAttribPointerARB(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) {
 //    glVertexAttribPointer(index, size, type, normalized, stride, pointer);

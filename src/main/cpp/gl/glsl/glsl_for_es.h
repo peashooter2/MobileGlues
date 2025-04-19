@@ -21,6 +21,6 @@ std::string GLSLtoGLSLES(const char *glsl_code, GLenum glsl_type, uint esversion
 std::string GLSLtoGLSLES_1(const char *glsl_code, GLenum glsl_type, uint esversion, int& return_code);
 std::string GLSLtoGLSLES_2(const char *glsl_code, GLenum glsl_type, uint essl_version, int& return_code);
 std::string GLSLtoGLSLES_3(const char *glsl_code, GLenum glsl_type, uint essl_version, int& return_code);
-int getGLSLVersion(const char* glsl_code);
+extern "C" int getGLSLVersion(const char* glsl_code);
 
 #endif
