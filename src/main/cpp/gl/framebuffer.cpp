@@ -347,5 +347,9 @@ EXPORT void glFramebufferTexture3DARB(GLenum target, GLenum attachment,
                                       GLint level, GLint layer) {
     //glFramebufferTexture3D(target, attachment, textarget, texture, level, layer);
 }
+EXPORT void glDrawBuffersARB(GLsizei n, const GLenum *bufs) {
+    glDrawBuffers(n, bufs);
+}
+
 
 }

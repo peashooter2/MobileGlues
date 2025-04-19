@@ -131,3 +131,64 @@ void glGetProgramiv(GLuint program, GLenum pname, GLint *params) {
     }
     CHECK_GL_ERROR
 }
+
+extern "C" {
+EXPORT void glGetActiveUniformName(GLuint program,
+                          GLuint uniformIndex,
+                          GLsizei bufSize,
+                          GLsizei* length,
+                          char* uniformName)
+{
+    GLint uniformSize;
+    GLenum uniformType;
+    char rawName[bufSize];
+
+    glGetActiveUniform(program, uniformIndex, bufSize, length,
+                       &uniformSize, &uniformType, rawName);
+
+    char* bracketPos = strchr(rawName, '[');
+    if (bracketPos != nullptr) {
+        *bracketPos = '\0';
+    }
+
+    strncpy(uniformName, rawName, bufSize);
+    if (length != nullptr && *length > bufSize) {
+        *length = (GLsizei)strlen(rawName);
+    }
+}
+EXPORT void glGetActiveUniformNameARB(GLuint program,
+                                      GLuint uniformIndex,
+                                      GLsizei bufSize,
+                                      GLsizei* length,
+                                      char* uniformName) __attribute__((alias("glGetActiveUniformName")));
+
+EXPORT GLint glGetProgramResourceLocationIndex(GLuint program, GLenum programInterface, const char *name) {
+    if (program == 0 || glIsProgram(program) == GL_FALSE) {
+        return -1;
+    }
+    
+    GLuint resourceIndex = glGetProgramResourceIndex(program, programInterface, name);
+    if (resourceIndex == GL_INVALID_INDEX) {
+        return -1;
+    }
+
+    switch (programInterface) {
+        case GL_PROGRAM_OUTPUT: {
+            GLint index = 0;
+            GLenum props[] = { GL_INDEX };
+            GLsizei length;
+            glGetProgramResourceiv(program, programInterface, resourceIndex,
+                                   1, props, 1, &length, &index);
+            return index;
+        }
+        case GL_UNIFORM: {
+            return -1;
+        }
+        default: {
+            return -1;
+        }
+    }
+}
+EXPORT void glGetProgramResourceLocationIndexARB(GLuint program, GLenum programInterface, const char *name) __attribute__((alias("glGetProgramResourceLocationIndex")));
+
+}

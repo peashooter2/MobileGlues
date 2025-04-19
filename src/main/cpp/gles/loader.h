@@ -98,14 +98,14 @@ static name##_PTR egl_##name = NULL;                                        \
     static void *GL4ES_FUNC_sym = dlsym(RTLD_DEFAULT, "gl4es_" #name);              \
     if (GL4ES_FUNC_sym) {                                                           \
         ((GL4ES_##name##_PTR)GL4ES_FUNC_sym)(__VA_ARGS__);                          \
-    }
+    } else {LOG_I("%s not found in gl4es", #name)}
 
 #define CALL_GL4ES_FUNC_RETURN(type, name, ...) \
     type GL4ES_RETURN_VALUE;                                                          \
     static void *GL4ES_FUNC_sym = dlsym(RTLD_DEFAULT, "gl4es_" #name);                \
     if (GL4ES_FUNC_sym) {                                                             \
         GL4ES_RETURN_VALUE = (type)((GL4ES_##name##_PTR)GL4ES_FUNC_sym)(__VA_ARGS__); \
-    }
+    } else {LOG_I("%s not found in gl4es", #name)}
 
 #define NATIVE_FUNCTION_HEAD(type,name,...)                                 \
 extern "C" GLAPI GLAPIENTRY type name##ARB(__VA_ARGS__) __attribute__((alias(#name))); \

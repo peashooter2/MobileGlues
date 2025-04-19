@@ -113,11 +113,20 @@ void glGetShaderiv(GLuint shader, GLenum pname, GLint *params) {
 
 extern "C" {
 EXPORT void glDeleteObjectARB(GLhandleARB obj) {
-    glDeleteProgram(obj);
+    if (glIsProgram(obj)) {
+        glDeleteProgram(obj);
+    } else {
+        glDeleteShader(obj);
+    }
 }
 
 EXPORT GLhandleARB glGetHandleARB(GLenum pname) {
-    return glGetHandleARB(pname);
+    if (pname == GL_PROGRAM_OBJECT_ARB) {
+        GLint currentProg;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &currentProg);
+        return (GLhandleARB)currentProg;
+    }
+    return 0;
 }
 
 EXPORT void glDetachObjectARB(GLhandleARB containerObj, GLhandleARB attachedObj) {
@@ -148,5 +157,83 @@ EXPORT void glLinkProgramARB(GLhandleARB programObj) {
 EXPORT void glUseProgramObjectARB(GLhandleARB programObj) {
     glUseProgram(programObj);
 }
+
+EXPORT void glGetObjectParameterfvARB(GLhandleARB obj, GLenum pname, GLfloat *params) {
+    GLint iparam;
+    if (glIsShader(obj)) {
+        glGetShaderiv(obj, pname, &iparam);
+    } else {
+        glGetProgramiv(obj, pname, &iparam);
+    }
+    if (params) {
+        params[0] = (GLfloat)iparam;
+    }
+}
+
+EXPORT void glGetObjectParameterivARB(GLhandleARB obj, GLenum pname, GLint *params) {
+    if (glIsShader(obj)) {
+        glGetShaderiv(obj, pname, params);
+    } else {
+        glGetProgramiv(obj, pname, params);
+    }
+}
+
+//EXPORT void glVertexAttrib1fARB(GLuint index, GLfloat v0) { glVertexAttrib1f(index, v0); }
+EXPORT void glVertexAttrib1sARB(GLuint index, GLshort v0) { glVertexAttrib1f(index, v0); }
+EXPORT void glVertexAttrib1dARB(GLuint index, GLdouble v0) { glVertexAttrib1f(index, v0); }
+//EXPORT void glVertexAttrib2fARB(GLuint index, GLfloat v0, GLfloat v1) { glVertexAttrib2f(index, v0, v1); }
+EXPORT void glVertexAttrib2sARB(GLuint index, GLshort v0, GLshort v1) { glVertexAttrib2f(index, v0, v1); }
+EXPORT void glVertexAttrib2dARB(GLuint index, GLdouble v0, GLdouble v1) { glVertexAttrib2f(index, v0, v1); }
+//EXPORT void glVertexAttrib3fARB(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(index, v0, v1, v2); }
+EXPORT void glVertexAttrib3sARB(GLuint index, GLshort v0, GLshort v1, GLshort v2) { glVertexAttrib3f(index, v0, v1, v2); }
+EXPORT void glVertexAttrib3dARB(GLuint index, GLdouble v0, GLdouble v1, GLdouble v2) { glVertexAttrib3f(index, v0, v1, v2); }
+//EXPORT void glVertexAttrib4fARB(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(index, v0, v1, v2, v3); }
+EXPORT void glVertexAttrib4sARB(GLuint index, GLshort v0, GLshort v1, GLshort v2, GLshort v3) { glVertexAttrib4f(index, v0, v1, v2, v3); }
+EXPORT void glVertexAttrib4dARB(GLuint index, GLdouble v0, GLdouble v1, GLdouble v2, GLdouble v3) { glVertexAttrib4f(index, v0, v1, v2, v3); }
+
+//EXPORT void glVertexAttrib1fvARB(GLuint index, const GLfloat *v) { glVertexAttrib1fv(index, v); }
+EXPORT void glVertexAttrib1svARB(GLuint index, const GLshort *v) { glVertexAttrib1fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib1dvARB(GLuint index, const GLdouble *v) { glVertexAttrib1fv(index, (GLfloat*)v); }
+//EXPORT void glVertexAttrib2fvARB(GLuint index, const GLfloat *v) { glVertexAttrib2fv(index, v); }
+EXPORT void glVertexAttrib2svARB(GLuint index, const GLshort *v) { glVertexAttrib2fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib2dvARB(GLuint index, const GLdouble *v) { glVertexAttrib2fv(index, (GLfloat*)v); }
+//EXPORT void glVertexAttrib3fvARB(GLuint index, const GLfloat *v) { glVertexAttrib3fv(index, v); }
+EXPORT void glVertexAttrib3svARB(GLuint index, const GLshort *v) { glVertexAttrib3fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib3dvARB(GLuint index, const GLdouble *v) { glVertexAttrib3fv(index, (GLfloat*)v); }
+//EXPORT void glVertexAttrib4fvARB(GLuint index, const GLfloat *v) { glVertexAttrib4fv(index, v); }
+EXPORT void glVertexAttrib4svARB(GLuint index, const GLshort *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib4dvARB(GLuint index, const GLdouble *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib4ivARB(GLuint index, const GLint *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib4bvARB(GLuint index, const GLbyte *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib4ubvARB(GLuint index, const GLubyte *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib4usvARB(GLuint index, const GLushort *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+EXPORT void glVertexAttrib4uivARB(GLuint index, const GLuint *v) { glVertexAttrib4fv(index, (GLfloat*)v); }
+
+//EXPORT void glVertexAttribPointerARB(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) {
+//    glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+//}
+
+//EXPORT void glEnableVertexAttribArrayARB(GLuint index) { glEnableVertexAttribArray(index); }
+//EXPORT void glDisableVertexAttribArrayARB(GLuint index) { glDisableVertexAttribArray(index); }
+
+//EXPORT void glBindAttribLocationARB(GLhandleARB programObj, GLuint index, const GLcharARB *name) {
+//    glBindAttribLocation(programObj, index, name);
+//}
+
+//EXPORT void glGetActiveAttribARB(GLhandleARB programObj, GLuint index, GLsizei maxLength,
+//                                 GLsizei *length, GLint *size, GLenum *type, GLcharARB *name) {
+//    glGetActiveAttrib(programObj, index, maxLength, length, size, type, name);
+//}
+
+//EXPORT GLint glGetAttribLocationARB(GLhandleARB programObj, const GLcharARB *name) {
+//    return glGetAttribLocation(programObj, name);
+//}
+
+EXPORT void glGetVertexAttribdvARB(GLuint index, GLenum pname, GLdouble *params) { glGetVertexAttribfv(index, pname,(GLfloat*) params); }
+//EXPORT void glGetVertexAttribfvARB(GLuint index, GLenum pname, GLfloat *params) { glGetVertexAttribfv(index, pname, params); }
+//EXPORT void glGetVertexAttribivARB(GLuint index, GLenum pname, GLint *params) { glGetVertexAttribiv(index, pname, params); }
+//EXPORT void glGetVertexAttribPointervARB(GLuint index, GLenum pname, void **pointer) {
+//    glGetVertexAttribPointerv(index, pname, pointer);
+//}
 
 }

@@ -891,11 +891,15 @@ void APIENTRY_GL4ES gl4es_glMultiDrawArrays(GLenum mode, const GLint *firsts, co
     else
         errorGL();
 }
+void glMultiDrawArrays(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount) {
+    gl4es_glMultiDrawArrays(mode, first, count, primcount);
+}
 AliasExport(void,glMultiDrawArrays,,(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount));
 
 void APIENTRY_GL4ES gl4es_glMultiDrawElements( GLenum mode, GLsizei *counts, GLenum type, const void * const *indices, GLsizei primcount)
 {
     DBG(SHUT_LOGD("MobileGlues-gl4es: glMultiDrawElements(%s, %p, %s, %p, %d), list=%p pending=%d\n", PrintEnum(mode), counts, PrintEnum(type), indices, primcount, glstate->list.active, glstate->list.pending);)
+    return;
     if(!primcount) {
         noerrorShim();
         return;
@@ -1017,6 +1021,7 @@ AliasExport(void,glMultiDrawElements,,( GLenum mode, GLsizei *count, GLenum type
 
 void APIENTRY_GL4ES gl4es_glMultiDrawElementsBaseVertex( GLenum mode, GLsizei *counts, GLenum type, const void * const *indices, GLsizei primcount, const GLint * basevertex) {
     DBG(SHUT_LOGD("MobileGlues-gl4es: glMultiDrawElementsBaseVertex(%s, %p, %s, @%p, %d, @%p), inlist=%i, pending=%d\n", PrintEnum(mode), counts, PrintEnum(type), indices, primcount, basevertex, (glstate->list.active)?1:0, glstate->list.pending);)
+    return;
     // divide the call, should try something better one day...
     bool compiling = (glstate->list.active);
     bool intercept = should_intercept_render(mode);
