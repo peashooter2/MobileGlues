@@ -36,6 +36,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         gl/framebuffer.cpp
         gl/texture.cpp
         gl/drawing.cpp
+        gl/multidraw.cpp
         gl/mg.cpp
         gl/buffer.cpp
         gl/getter.cpp
@@ -97,7 +98,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 target_include_directories(mobileglues PUBLIC
         ${CMAKE_SOURCE_DIR}/include
         )
-
 
 if (PROFILING)
         find_package(Threads)
