@@ -5,10 +5,14 @@
 #include "texture.h"
 
 #include <cstring>
-#include <malloc.h>
 #include <vector>
 #include <unordered_map>
+#include <cstdlib>
+
+#ifndef __APPLE__
+#include <malloc.h>
 #include <android/log.h>
+#endif
 
 #include "GL/gl.h"
 #include "../gles/gles.h"
@@ -48,9 +52,9 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             break;
 
         case GL_DEPTH_COMPONENT32:
-            *internal_format = GL_DEPTH_COMPONENT32F;
+            *internal_format = GL_DEPTH_COMPONENT;
             if(type)
-                *type = GL_FLOAT;
+                *type = GL_UNSIGNED_INT;
             break;
 
         case GL_DEPTH_COMPONENT32F:
@@ -59,10 +63,23 @@ void internal_convert(GLenum* internal_format, GLenum* type, GLenum* format) {
             break;
 
         case GL_DEPTH_COMPONENT:
-            // TODO: Add enable_compatible_mode option
             LOG_D("Find GL_DEPTH_COMPONENT: internalFormat: %s, format: %s, type: %s", glEnumToString(*internal_format), glEnumToString(*format), glEnumToString(*type))
-            if(type) {
-                *type = GL_UNSIGNED_INT;
+            if (type) {
+                switch (*type) {
+                    case GL_UNSIGNED_SHORT:
+                    case GL_UNSIGNED_INT:
+						*type = GL_UNSIGNED_INT;
+                        *internal_format = GL_DEPTH_COMPONENT;
+						break;
+                    case GL_FLOAT:
+                    case GL_DOUBLE:
+                    case GL_HALF_FLOAT:
+						*internal_format = GL_DEPTH_COMPONENT32F;
+						*type = GL_FLOAT;
+                    default:
+						*internal_format = GL_DEPTH_COMPONENT;
+						*type = GL_UNSIGNED_INT;
+                }
             }
             break;
 
@@ -302,6 +319,8 @@ void glTexImage1D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 void glTexImage2D(GLenum target, GLint level,GLint internalFormat,GLsizei width, GLsizei height,GLint border, GLenum format, GLenum type,const GLvoid* pixels) {
     LOG()
     auto& tex = g_textures[bound_texture];
+    tex.width = width;
+    tex.height = height;
     tex.internal_format = internalFormat;
     GLenum transfer_format = format;
     GLenum transfer_type = type;
@@ -309,6 +328,19 @@ void glTexImage2D(GLenum target, GLint level,GLint internalFormat,GLsizei width,
           glEnumToString(target), level, glEnumToString(internalFormat), glEnumToString(internalFormat),
           width, height, border, glEnumToString(format), glEnumToString(type), pixels)
     internal_convert(reinterpret_cast<GLenum *>(&internalFormat), &type, &format);
+
+    // TODO: Fix this jank
+    if (pixels == nullptr && format) {
+        if (internalFormat == GL_RED || internalFormat == GL_RED_INTEGER || internalFormat == GL_RG || internalFormat == GL_RG_INTEGER ||
+        internalFormat == GL_RG8 || internalFormat == GL_RG8_SNORM || internalFormat == GL_RG16 || internalFormat == GL_RG16_SNORM ||
+        internalFormat == GL_RG16F || internalFormat == GL_R32F || internalFormat == GL_RG32F || internalFormat == GL_R8I ||
+        internalFormat == GL_R8UI || internalFormat == GL_R16I || internalFormat == GL_R16UI || internalFormat == GL_R32I ||
+        internalFormat == GL_R32UI ||internalFormat == GL_RG8I || internalFormat == GL_RG8UI || internalFormat == GL_RG16I ||
+        internalFormat == GL_RG16UI || internalFormat == GL_RG32I || internalFormat == GL_RG32UI) {
+            format = internalFormat;
+        }
+    }
+
     LOG_D("GLES.glTexImage2D,target: %s,level: %d,internalFormat: %s->%s,width: %d,height: %d,border: %d,format: %s,type: %s, pixels: 0x%x",
           glEnumToString(target),level,glEnumToString(internalFormat),glEnumToString(internalFormat),
           width,height,border,glEnumToString(format),glEnumToString(type), pixels)
@@ -644,13 +676,13 @@ void glGetTexLevelParameterfv(GLenum target, GLint level,GLenum pname, GLfloat *
         switch (pname) {
             case GL_TEXTURE_WIDTH:
                 (*params) = (float)nlevel(gl_state->proxy_width, level);
-                break;
+                return;
             case GL_TEXTURE_HEIGHT:
                 (*params) = (float)nlevel(gl_state->proxy_height, level);
-                break;
+                return;
             case GL_TEXTURE_INTERNAL_FORMAT:
                 (*params) = (float)gl_state->proxy_intformat;
-                break;
+                return;
             default:
                 return;
         }
@@ -736,7 +768,13 @@ void glBindTexture(GLenum target, GLuint texture) {
     LOG()
     LOG_D("glBindTexture(%s, %d)", glEnumToString(target), texture)
     INIT_CHECK_GL_ERROR
-    GLES.glBindTexture(target, texture);
+    if (hardware->emulate_texture_buffer && target == GL_TEXTURE_BUFFER) {
+        GLES.glActiveTexture(GL_TEXTURE0 + 15);
+        GLES.glBindTexture(GL_TEXTURE_2D, texture);
+		GLES.glActiveTexture(GL_TEXTURE0 + gl_state->current_tex_unit);
+    } else {
+        GLES.glBindTexture(target, texture);
+    }
     CHECK_GL_ERROR_NO_INIT
 
     g_textures[texture] = {
@@ -772,6 +810,19 @@ void glGenerateTextureMipmap(GLuint texture) {
     glBindTexture(target, texture);
     glGenerateMipmap(target);
     glBindTexture(target, currentTexture);
+}
+
+void glActiveTexture(GLenum texture) {
+    LOG()
+    LOG_D("glActiveTexture, texture = %s", glEnumToString(texture))
+    if (texture < GL_TEXTURE0) {
+        LOG_E("Invalid texture enum: %s", glEnumToString(texture))
+        return;
+    }
+
+	set_gl_state_current_tex_unit(texture - GL_TEXTURE0);
+    GLES.glActiveTexture(texture);
+    CHECK_GL_ERROR
 }
 
 void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void* pixels) {

@@ -2,7 +2,6 @@
 // Created by Swung 0x48 on 2024/10/10.
 //
 
-#include <linux/limits.h>
 #include <cstring>
 #include <cstdio>
 #include "loader.h"
@@ -88,13 +87,18 @@ void *open_lib(const char **names, const char *override) {
 }
 
 void load_libs() {
+#ifndef __APPLE__
     static int first = 1;
     if (!first) return;
     first = 0;
-    const char *gles_override = global_settings.angle ? GLES_ANGLE : nullptr;
-    const char *egl_override = global_settings.angle ? EGL_ANGLE : nullptr;
+    const char *gles_override = global_settings.angle == AngleMode::Enabled ? GLES_ANGLE : nullptr;
+    const char *egl_override = global_settings.angle == AngleMode::Enabled ? EGL_ANGLE : nullptr;
     gles = open_lib(gles3_lib, gles_override);
     egl = open_lib(egl_lib, egl_override);
+#else
+    gles = (void*)(~(uintptr_t)0);
+    egl = (void*)(~(uintptr_t)0);
+#endif
 }
 
 void *proc_address(void *lib, const char *name) {
@@ -102,17 +106,20 @@ void *proc_address(void *lib, const char *name) {
 }
 
 void set_hardware() {
-    hardware = (hardware_t) calloc(1, sizeof(struct hardware_s));
+	hardware = new hardware_s;
     set_es_version();
+    if (hardware->es_version <= 310)
+        hardware->emulate_texture_buffer = true;
+    else
+		hardware->emulate_texture_buffer = false;
 }
 
 void init_gl_state() {
-    gl_state = (gl_state_t) calloc(1, sizeof(struct gl_state_s));
+	gl_state = new gl_state_s;
     set_gl_state_proxy_height(0);
     set_gl_state_proxy_width(0);
     set_gl_state_proxy_intformat(0);
 }
-
 
 void LogOpenGLExtensions() {
     const GLubyte *raw_extensions = glGetString(GL_EXTENSIONS);
@@ -140,10 +147,6 @@ void InitGLESCapabilities() {
 
     GLES.glGetIntegerv(GL_MAJOR_VERSION, &g_gles_caps.major);
     GLES.glGetIntegerv(GL_MINOR_VERSION, &g_gles_caps.minor);
-
-//    int has_GL_EXT_buffer_storage = 0;
-//    int has_GL_ARB_timer_query = 0;
-//    int has_GL_QCOM_texture_lod_bias = 0;
 
     GLint num_es_extensions = 0;
     GLES.glGetIntegerv(GL_NUM_EXTENSIONS, &num_es_extensions);
@@ -180,6 +183,8 @@ void InitGLESCapabilities() {
                 g_gles_caps.GL_EXT_texture_norm16 = 1;
             } else if (strcmp(extension, "GL_EXT_texture_rg") == 0) {
                 g_gles_caps.GL_EXT_texture_rg = 1;
+            } else if (strcmp(extension, "GL_EXT_texture_query_lod") == 0) {
+                g_gles_caps.GL_EXT_texture_query_lod = 1;
             }
         } else {
             LOG_D("(nullptr)")
@@ -192,7 +197,7 @@ void InitGLESCapabilities() {
         AppendExtension("GL_ARB_buffer_storage");
     }
 
-    if (g_gles_caps.GL_EXT_disjoint_timer_query) {
+    if (g_gles_caps.GL_EXT_disjoint_timer_query && global_settings.ext_timer_query) {
         AppendExtension("GL_ARB_timer_query");
         AppendExtension("GL_EXT_timer_query");
     }

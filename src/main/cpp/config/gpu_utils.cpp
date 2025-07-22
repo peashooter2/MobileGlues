@@ -4,10 +4,13 @@
 
 #include "gpu_utils.h"
 #include "../gles/loader.h"
+#if !defined(__APPLE__)
 #include "vulkan/vulkan.h"
+#endif
 
 #include <EGL/egl.h>
 #include <cstring>
+#include <optional>
 
 static const char *gles3_lib[] = {
         "libGLESv3_CM",
@@ -23,7 +26,7 @@ static const char *vk_lib[] = {
 std::string getGPUInfo() {
     EGLDisplay eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (eglDisplay == EGL_NO_DISPLAY || eglInitialize(eglDisplay, nullptr, nullptr) != EGL_TRUE)
-        return nullptr;
+        return "";
 
     EGLint egl_attributes[] = {
             EGL_BLUE_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8,
@@ -34,7 +37,7 @@ std::string getGPUInfo() {
     EGLint num_configs = 0;
     if (eglChooseConfig(eglDisplay, egl_attributes, nullptr, 0, &num_configs) != EGL_TRUE || num_configs == 0) {
         eglTerminate(eglDisplay);
-        return nullptr;
+        return "";
     }
 
     EGLConfig eglConfig;
@@ -44,13 +47,13 @@ std::string getGPUInfo() {
     EGLContext context = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, egl_context_attributes);
     if (context == EGL_NO_CONTEXT) {
         eglTerminate(eglDisplay);
-        return nullptr;
+        return "";
     }
 
     if (eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, context) != EGL_TRUE) {
         eglDestroyContext(eglDisplay, context);
         eglTerminate(eglDisplay);
-        return nullptr;
+        return "";
     }
 
     std::string renderer;
@@ -79,10 +82,21 @@ int isAdreno(const char* gpu) {
 }
 
 int isAdreno740(const char* gpu) {
-//    const char* gpu = getGPUInfo();
+    //    const char* gpu = getGPUInfo();
     if (!gpu)
         return 0;
     return isAdreno(gpu) && (strstr(gpu, "740") != nullptr);
+}
+
+int isAdreno730(const char* gpu) {
+    //    const char* gpu = getGPUInfo();
+    if (!gpu)
+        return 0;
+    return isAdreno(gpu) && (strstr(gpu, "730") != nullptr);
+}
+
+bool checkIfANGLESupported(const char* gpu) {
+    return !isAdreno730(gpu) && !isAdreno740(gpu) && hasVulkan12();
 }
 
 int isAdreno830(const char* gpu) {
@@ -92,11 +106,16 @@ int isAdreno830(const char* gpu) {
     return isAdreno(gpu) && (strstr(gpu, "830") != nullptr);
 }
 
-int hasVulkan13() {
+static std::optional<int> hasVk12;
+int hasVulkan12() {
+    if (hasVk12.has_value())
+        return hasVk12.value();
     void* vulkan_lib = open_lib(vk_lib, nullptr);
     if (!vulkan_lib)
         return 0;
 
+#ifndef __APPLE__
+    
     typedef VkResult (*PFN_vkEnumerateInstanceExtensionProperties)(const char*, uint32_t*, VkExtensionProperties*);
     typedef VkResult (*PFN_vkCreateInstance)(const VkInstanceCreateInfo*, const VkAllocationCallbacks*, VkInstance*);
     typedef void (*PFN_vkDestroyInstance)(VkInstance, const VkAllocationCallbacks*);
@@ -150,6 +169,7 @@ int hasVulkan13() {
     VkInstance instance = {};
     result = vkCreateInstance(&createInfo, nullptr, &instance);
     if (result != VK_SUCCESS) {
+        hasVk12 = false;
         return 0;
     }
 
@@ -157,6 +177,7 @@ int hasVulkan13() {
     result = vkEnumeratePhysicalDevices(instance, &gpuCount, nullptr);
     if (result != VK_SUCCESS || gpuCount == 0) {
         vkDestroyInstance(instance, nullptr);
+        hasVk12 = false;
         return 0;
     }
 
@@ -167,8 +188,9 @@ int hasVulkan13() {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(physicalDevices[i], &deviceProperties);
 
-        if (deviceProperties.apiVersion >= VK_API_VERSION_1_3) {
+        if (deviceProperties.apiVersion >= VK_API_VERSION_1_2) {
             vkDestroyInstance(instance, nullptr);
+            hasVk12 = true;
             return 1;
         }
     }
@@ -178,5 +200,8 @@ int hasVulkan13() {
     vkDestroyInstance(instance, nullptr);
 
     dlclose(vulkan_lib);
+    hasVk12 = false;
     return 0;
+    
+#endif
 }

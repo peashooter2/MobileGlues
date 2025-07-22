@@ -4,10 +4,10 @@
 
 #include "lookup.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <dlfcn.h>
 #include <EGL/egl.h>
-#include <string.h>
+#include <cstring>
 #include "../includes.h"
 #include "../gl/log.h"
 #include "../gl/envvars.h"
@@ -15,10 +15,10 @@
 
 #define DEBUG 0
 
-void* get_multidraw_func(const char* name) {
+std::string handle_multidraw_func_name(std::string name) {
     std::string namestr = name;
     if (namestr != "glMultiDrawElementsBaseVertex" && namestr != "glMultiDrawElements") {
-        return nullptr;
+        return name;
     } else {
         namestr = "mg_" + namestr;
     }
@@ -41,44 +41,32 @@ void* get_multidraw_func(const char* name) {
             break;
         default:
             LOG_W("get_multidraw_func() cannot determine multidraw emulation mode!")
-            return nullptr;
+            return {};
     }
 
-    return dlsym(RTLD_DEFAULT, namestr.c_str());
+    return namestr;
 }
 
 void *glXGetProcAddress(const char *name) {
     LOG()
+    std::string real_func_name = handle_multidraw_func_name(std::string(name));
+#ifdef __APPLE__
+    return dlsym((void*)(~(uintptr_t)0), real_func_name.c_str());
+#else
+    
     void* proc = nullptr;
 
-    proc = get_multidraw_func(name);
-
-    if (!proc)
-        proc = dlsym(RTLD_DEFAULT, (const char*)name);
+    proc = dlsym(RTLD_DEFAULT, real_func_name.c_str());
 
     if (!proc) {
-        fprintf(stderr, "Failed to get OpenGL function %s: %s\n", name, dlerror());
-        LOG_W("Failed to get OpenGL function: %s", (const char*)name)
-        return NULL;
+        LOG_W("Failed to get OpenGL function: %s", real_func_name.c_str())
+        return nullptr;
     }
 
     return proc;
+#endif
 }
 
 void *glXGetProcAddressARB(const char *name) {
-    LOG()
-    void* proc = nullptr;
-
-    proc = get_multidraw_func(name);
-
-    if (!proc)
-        proc = dlsym(RTLD_DEFAULT, (const char*)name);
-
-    if (!proc) {
-        fprintf(stderr, "Failed to get OpenGL function %s: %s\n", name, dlerror());
-        LOG_W("Failed to get OpenGL function: %s", (const char*)name)
-        return NULL;
-    }
-
-    return proc;
+    return glXGetProcAddress(name);
 }

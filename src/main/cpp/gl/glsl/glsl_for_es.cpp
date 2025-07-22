@@ -8,36 +8,19 @@
 #include <fstream>
 #include "../log.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
-#include "preConvertedGlsl.h"
 #include <string>
 #include <regex>
 #include <strstream>
 #include <algorithm>
+#include <sstream>
 #include "cache.h"
 #include "../../version.h"
 
-//#define FEATURE_PRE_CONVERTED_GLSL
-
 #define DEBUG 0
 
+#if !defined(__APPLE__)
 char* (*MesaConvertShader)(const char *src, unsigned int type, unsigned int glsl, unsigned int essl);
-
-//void trim(char* str) {
-//    char* end;
-//    while (isspace((unsigned char)*str)) str++;
-//    if (*str == 0) return;
-//    end = str + strlen(str) - 1;
-//    while (end > str && isspace((unsigned char)*end)) end--;
-//    *(end + 1) = 0;
-//}
-//
-//int startsWith(const char *str, const char *prefix) {
-//    if (!str || !prefix) return 0;
-//    while (*prefix) {
-//        if (*str++ != *prefix++) return 0;
-//    }
-//    return 1;
-//}
+#endif
 
 static TBuiltInResource InitResources()
 {
@@ -160,142 +143,6 @@ int getGLSLVersion(const char* glsl_code) {
     return -1;
 }
 
-//std::string removeSecondLine(std::string code) {
-//    size_t firstLineEnd = code.find('\n');
-//    if (firstLineEnd == std::string::npos) {
-//        return code;
-//    }
-//    size_t secondLineEnd = code.find('\n', firstLineEnd + 1);
-//    if (secondLineEnd == std::string::npos) {
-//        return code;
-//    }
-//    code.erase(firstLineEnd + 1, secondLineEnd - firstLineEnd);
-//    return code;
-//}
-
-//char* disable_GL_ARB_derivative_control(const char* glslCode) {
-//    std::string code(glslCode);
-//    std::string target = "GL_ARB_derivative_control";
-//    size_t pos = code.find(target);
-//
-//    if (pos != std::string::npos) {
-//        size_t ifdefPos = 0;
-//        while ((ifdefPos = code.find("#ifdef GL_ARB_derivative_control", ifdefPos)) != std::string::npos) {
-//            code.replace(ifdefPos, 32, "#if 0");
-//            ifdefPos += 4;
-//        }
-//
-//        size_t ifndefPos = 0;
-//        while ((ifndefPos = code.find("#ifndef GL_ARB_derivative_control", ifndefPos)) != std::string::npos) {
-//            code.replace(ifndefPos, 33, "#if 1");
-//            ifndefPos += 4;
-//        }
-//
-//        code = removeSecondLine(code);
-//
-//        char* result = new char[code.length() + 1];
-//        std::strcpy(result, code.c_str());
-//        return result;
-//    }
-//
-//    char* result = new char[code.length() + 1];
-//    std::strcpy(result, code.c_str());
-//    return result;
-//}
-//
-//char* forceSupporterInput(char* glslCode) {
-//    // first
-//    const char* target = "const mat3 rotInverse = transpose(rot);";
-//    const char* replacement = "const mat3 rotInverse = mat3(rot[0][0], rot[1][0], rot[2][0], rot[0][1], rot[1][1], rot[2][1], rot[0][2], rot[1][2], rot[2][2]);";
-//
-//    char* pos = strstr(glslCode, target);
-//    if (pos != nullptr) {
-//        size_t targetLen = strlen(target);
-//        size_t replacementLen = strlen(replacement);
-//
-//        size_t newSize = strlen(glslCode) - targetLen + replacementLen + 1;
-//        char* modifiedCode = new char[newSize];
-//
-//        strncpy(modifiedCode, glslCode, pos - glslCode);
-//        modifiedCode[pos - glslCode] = '\0';
-//
-//        strcat(modifiedCode, replacement);
-//
-//        strcat(modifiedCode, pos + targetLen);
-//        glslCode = new char[strlen(modifiedCode) + 1];
-//        std::strcpy(glslCode, modifiedCode);
-//        std::free(modifiedCode);
-//    }
-//
-//    // second
-//    if (!std::strstr(glslCode, "deferredOutput2 = GI_TemporalFilter()")) {
-//        return glslCode;
-//    }
-//
-//    if (std::strstr(glslCode, "vec4 GI_TemporalFilter()")) {
-//        return glslCode;
-//    }
-//
-//
-//    LOG_D("find GI_TemporalFilter()")
-//
-//    const char* GI_TemporalFilter = R"(
-//vec4 GI_TemporalFilter() {
-//    vec2 uv = gl_FragCoord.xy / screenSize;
-//    uv += taaJitter * pixelSize;
-//    vec4 currentGI = texture(colortex0, uv);
-//    float depth = texture(depthtex0, uv).r;
-//    vec4 clipPos = vec4(uv * 2.0 - 1.0, depth, 1.0);
-//    vec4 viewPos = gbufferProjectionInverse * clipPos;
-//    viewPos /= viewPos.w;
-//    vec4 worldPos = gbufferModelViewInverse * viewPos;
-//    vec4 prevClipPos = gbufferPreviousProjection * (gbufferPreviousModelView * worldPos);
-//    prevClipPos /= prevClipPos.w;
-//    vec2 prevUV = prevClipPos.xy * 0.5 + 0.5;
-//    vec4 historyGI = texture(colortex1, prevUV);
-//    float difference = length(currentGI.rgb - historyGI.rgb);
-//    float thresholdValue = 0.1;
-//    float adaptiveBlend = mix(0.9, 0.0, smoothstep(thresholdValue, thresholdValue * 2.0, difference));
-//    vec4 filteredGI = mix(currentGI, historyGI, adaptiveBlend);
-//    if (difference > thresholdValue * 2.0) {
-//        filteredGI = currentGI;
-//    }
-//    return filteredGI;
-//}
-//)";
-//
-//    char *mainPos = strstr(glslCode, "\nvoid main()");
-//    if (mainPos == nullptr) {
-//        LOG_E("Error: 'void main()' not found in GLSL code.")
-//        return glslCode;
-//    }
-//
-//    size_t prefixLength = mainPos - glslCode;
-//    size_t originalLength = strlen(glslCode);
-//    size_t insertLength = strlen(GI_TemporalFilter);
-//
-//    char *modifiedCode = (char *)malloc(originalLength + insertLength + 2);
-//    if (modifiedCode == nullptr) {
-//        LOG_E("Memory allocation failed.")
-//        return glslCode;
-//    }
-//
-//    strncpy(modifiedCode, glslCode, prefixLength);
-//    modifiedCode[prefixLength] = '\0';
-//
-//    strcat(modifiedCode, "\n");
-//    strcat(modifiedCode, GI_TemporalFilter);
-//    strcat(modifiedCode, "\n");
-//
-//    strcat(modifiedCode, mainPos);
-//
-//    free(glslCode);
-//    glslCode = modifiedCode;
-//
-//    return glslCode;
-//}
-
-
 std::string forceSupporterOutput(const std::string& glslCode) {
     bool hasPrecisionFloat = glslCode.find("precision ") != std::string::npos &&
                              glslCode.find("float;") != std::string::npos;
@@ -360,228 +207,6 @@ std::string removeLayoutBinding(const std::string& glslCode) {
     result = std::regex_replace(result, bindingRegex2, "layout(");
     return result;
 }
-
-// TODO
-[[maybe_unused]] std::string makeRGBWriteonly(const std::string& input) {
-    static std::regex pattern(R"(.*layout\([^)]*rgba[^)]*\).*?)");
-    std::string result;
-    std::string::size_type start = 0;
-    std::string::size_type end;
-    while ((end = input.find('\n', start)) != std::string::npos) {
-        std::string line = input.substr(start, end - start);
-        if (std::regex_search(line, pattern)) {
-            result += "writeonly " + line + "\n";
-        } else {
-            result += line + "\n";
-        }
-        start = end + 1;
-    }
-    std::string lastLine = input.substr(start);
-    if (std::regex_search(lastLine, pattern)) {
-        result += "writeonly " + lastLine;
-    } else {
-        result += lastLine;
-    }
-
-    return result;
-}
-
-//char* removeLineDirective(char* glslCode) {
-//    char* cursor = glslCode;
-//    int modifiedCodeIndex = 0;
-//    size_t maxLength = 1024 * 10;
-//    char* modifiedGlslCode = (char*)malloc(maxLength * sizeof(char));
-//    if (!modifiedGlslCode) return nullptr;
-//
-//    while (*cursor) {
-//        if (strncmp(cursor, "\n#", 2) == 0) {
-//            modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//            modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//            char* last_cursor = cursor;
-//            while (cursor[0] != '\n') cursor++;
-//            char* line_feed_cursor = cursor;
-//            while (isspace(cursor[0])) cursor--;
-//            if (cursor[0] == '\\')
-//            {
-//                // find line directive, now remove it
-//                char* slash_cursor = cursor;
-//                cursor = last_cursor;
-//                while (cursor < slash_cursor - 1)
-//                    modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//                modifiedGlslCode[modifiedCodeIndex++] = ' ';
-//                cursor = line_feed_cursor + 1;
-//                while (isspace(cursor[0])) cursor++;
-//
-//                while (true) {
-//                    char* last_cursor2 = cursor;
-//                    while (cursor[0] != '\n') cursor++;
-//                    cursor -= 1;
-//                    while (isspace(cursor[0])) cursor--;
-//                    if (cursor[0] == '\\') {
-//                        char* slash_cursor2 = cursor;
-//                        cursor = last_cursor2;
-//                        while (cursor < slash_cursor2)
-//                            modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//                        while (cursor[0] != '\n') cursor++;
-//                        cursor++;
-//                        while (isspace(cursor[0])) cursor++;
-//                    } else {
-//                        cursor = last_cursor2;
-//                        while (cursor[0] != '\n')
-//                            modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//                        break;
-//                    }
-//                }
-//                cursor++;
-//            }
-//            else {
-//                cursor = last_cursor;
-//            }
-//        }
-//        else {
-//            modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//        }
-//
-//        if (modifiedCodeIndex >= maxLength - 1) {
-//            maxLength *= 2;
-//            modifiedGlslCode = (char*)realloc(modifiedGlslCode, maxLength);
-//            if (!modifiedGlslCode) return nullptr;
-//        }
-//    }
-//
-//    modifiedGlslCode[modifiedCodeIndex] = '\0';
-//    return modifiedGlslCode;
-//}
-
-//char* process_uniform_declarations(char* glslCode) {
-//    char* cursor = glslCode;
-//    char name[256], type[256], initial_value[1024];
-//    int modifiedCodeIndex = 0;
-//    size_t maxLength = 1024 * 10;
-//    char* modifiedGlslCode = (char*)malloc(maxLength * sizeof(char));
-//    if (!modifiedGlslCode) return nullptr;
-//
-//    while (*cursor) {
-//        if (strncmp(cursor, "uniform", 7) == 0) {
-//            char* cursor_start = cursor;
-//
-//            cursor += 7;
-//
-//            while (isspace((unsigned char)*cursor)) cursor++;
-//
-//            // may be precision qualifier
-//            char* precision = nullptr;
-//            if (startsWith(cursor, "highp")) {
-//                precision = " highp";
-//                cursor += 5;
-//                while (isspace((unsigned char)*cursor)) cursor++;
-//            } else if (startsWith(cursor, "lowp")) {
-//                precision = " lowp";
-//                cursor += 4;
-//                while (isspace((unsigned char)*cursor)) cursor++;
-//            } else if (startsWith(cursor, "mediump")) {
-//                precision = " mediump";
-//                cursor += 7;
-//                while (isspace((unsigned char)*cursor)) cursor++;
-//            }
-//
-//            int i = 0;
-//            while (isalnum((unsigned char)*cursor) || *cursor == '_') {
-//                type[i++] = *cursor++;
-//            }
-//            type[i] = '\0';
-//
-//            while (isspace((unsigned char)*cursor)) cursor++;
-//
-//            // may be precision qualifier
-//            if(!precision)
-//            {
-//                if (startsWith(cursor, "highp")) {
-//                    precision = " highp";
-//                    cursor += 5;
-//                    while (isspace((unsigned char)*cursor)) cursor++;
-//                } else if (startsWith(cursor, "lowp")) {
-//                    precision = " lowp";
-//                    cursor += 4;
-//                    while (isspace((unsigned char)*cursor)) cursor++;
-//                } else if (startsWith(cursor, "mediump")) {
-//                    precision = " mediump";
-//                    cursor += 7;
-//                    while (isspace((unsigned char)*cursor)) cursor++;
-//                } else {
-//                    precision = "";
-//                }
-//            }
-//
-//            while (isspace((unsigned char)*cursor)) cursor++;
-//
-//            i = 0;
-//            while (isalnum((unsigned char)*cursor) || *cursor == '_') {
-//                name[i++] = *cursor++;
-//            }
-//            name[i] = '\0';
-//            while (isspace((unsigned char)*cursor)) cursor++;
-//
-//            initial_value[0] = '\0';
-//            if (*cursor == '=') {
-//                cursor++;
-//                i = 0;
-//                while (*cursor && *cursor != ';') {
-//                    initial_value[i++] = *cursor++;
-//                }
-//                initial_value[i] = '\0';
-//                trim(initial_value);
-//            }
-//
-//            while (*cursor != ';' && *cursor) {
-//                cursor++;
-//            }
-//
-//            char* cursor_end = cursor;
-//
-//            size_t spaceLeft = maxLength - modifiedCodeIndex;
-//            int len = 0;
-//
-//            if (*initial_value) {
-//                len = snprintf(modifiedGlslCode + modifiedCodeIndex, spaceLeft, "uniform%s %s %s;", precision, type, name);
-//            } else {
-//                // use original declaration
-//                size_t length = cursor_end - cursor_start + 1;
-//                if (length < spaceLeft) {
-//                    memcpy(modifiedGlslCode + modifiedCodeIndex, cursor_start, length);
-//                    len = (int)length;
-//                } else {
-//                    fprintf(stderr, "Error: Not enough space in buffer\n");
-//                }
-//                // len = snprintf(modifiedGlslCode + modifiedCodeIndex, spaceLeft, "uniform%s %s %s;", precision, type, name);
-//            }
-//
-//            if (len < 0 || len >= spaceLeft) {
-//                free(modifiedGlslCode);
-//                return nullptr;
-//            }
-//            modifiedCodeIndex += len;
-//
-//            while (*cursor == ';') cursor++;
-//
-//        } else {
-//            modifiedGlslCode[modifiedCodeIndex++] = *cursor++;
-//        }
-//
-//        while (modifiedCodeIndex >= maxLength - 1) {
-//            maxLength *= 2;
-//            char* temp = (char*)realloc(modifiedGlslCode, maxLength);
-//            if (!temp) {
-//                free(modifiedGlslCode);
-//                return nullptr;
-//            }
-//            modifiedGlslCode = temp;
-//        }
-//    }
-//
-//    modifiedGlslCode[modifiedCodeIndex] = '\0';
-//    return modifiedGlslCode;
-//}
 
 void trim(std::string& str) {
     str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](int ch) {
@@ -720,7 +345,6 @@ std::string getCachedESSL(const char* glsl_code, uint essl_version) {
     } else return "";
 }
 
-
 std::string GLSLtoGLSLES(const char* glsl_code, GLenum glsl_type, uint essl_version, uint glsl_version) {
     std::string sha256_string(glsl_code);
     sha256_string += "\n//" + std::to_string(MAJOR) + "." + std::to_string(MINOR) + "." + std::to_string(REVISION) + "|" + std::to_string(essl_version);
@@ -743,7 +367,7 @@ std::string GLSLtoGLSLES(const char* glsl_code, GLenum glsl_type, uint essl_vers
 std::string replace_line_starting_with(const std::string& glslCode, const std::string& starting, const std::string& substitution = "") {
     std::string result;
     size_t length = glslCode.size();
-    size_t start = 0;  // 当前保留块的起始位置
+    size_t start = 0;
     size_t current = 0;
 
     auto append_chunk = [&](size_t end) {
@@ -810,28 +434,161 @@ static inline void replace_all(std::string& str, const std::string& from, const 
     }
 }
 
+static size_t find_insertion_point(const std::string& glsl) {
+    size_t pos = 0;
+    size_t insertion_point = 0;
+
+    size_t version_pos = glsl.find("#version");
+    if (version_pos != std::string::npos) {
+        size_t version_end = glsl.find('\n', version_pos);
+        if (version_end == std::string::npos) {
+            version_end = glsl.length();
+        }
+        else {
+            version_end++;
+        }
+        insertion_point = version_end;
+        pos = version_end;
+    }
+    else {
+        insertion_point = 0;
+        pos = 0;
+    }
+
+    while (pos < glsl.length()) {
+        size_t line_begin = pos;
+        while (pos < glsl.length() && std::isspace(glsl[pos])) {
+            pos++;
+        }
+        if (pos >= glsl.length()) break;
+
+        if (glsl[pos] == '#') {
+            pos++;
+            while (pos < glsl.length() && std::isspace(glsl[pos])) {
+                pos++;
+            }
+            if (glsl.compare(pos, 9, "extension") == 0) {
+                size_t ext_end = glsl.find('\n', pos);
+                if (ext_end == std::string::npos) {
+                    ext_end = glsl.length();
+                } else {
+                    ext_end++;
+                }
+                insertion_point = ext_end;
+                pos = ext_end;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+
+    return insertion_point;
+}
+
+void process_sampler_buffer(std::string& source) { // a simplized version, should be rewritten in the future
+    if (source.find("isamplerBuffer") == std::string::npos) {
+        return;
+    }
+
+    size_t pos = 0;
+    while ((pos = source.find("isamplerBuffer", pos)) != std::string::npos) {
+        source.replace(pos, 14, "isampler2D");
+        pos += 11;
+    }
+
+    std::regex pattern(R"(texelFetch\s*\(\s*(\w+)\s*,\s*([^)]+?)\s*\))");
+    source = std::regex_replace(
+        source,
+        pattern,
+        "texelFetch($1, ivec2(($2) % u_BufferTexWidth, ($2) / u_BufferTexWidth), 0)"
+    );
+
+    const char* boundaryProtection = R"(
+ivec2 bufferCoords(int index) {
+    int width = u_BufferTexWidth;
+    int x = index % width;
+    int y = index / width;
+    if (y >= u_BufferTexHeight) {
+        y = u_BufferTexHeight - 1;
+        x = width - 1;
+    }
+    return ivec2(x, y);
+}
+)";
+
+    source = std::regex_replace(
+        source,
+        std::regex("texelFetch\\((\\w+)\\s*,\\s*ivec2\\(([^)]+)\\)\\s*,\\s*0\\)"),
+        "texelFetch($1, bufferCoords($2), 0)"
+    );
+
+    size_t insertion_point = find_insertion_point(source);
+    if (insertion_point != std::string::npos) {
+        source.insert(insertion_point, boundaryProtection);
+    }
+
+    const char* uniformDecl = R"(
+uniform int u_BufferTexWidth;
+uniform int u_BufferTexHeight;
+)";
+
+    insertion_point = find_insertion_point(source);
+    if (insertion_point != std::string::npos) {
+        insertion_point = source.find('\n', insertion_point);
+        if (insertion_point != std::string::npos) {
+            source.insert(insertion_point + 1, uniformDecl);
+        }
+    }
+}
+
+static void inject_textureQueryLod(std::string& glsl) {
+    const std::regex defRegex(R"(vec2\s+mg_textureQueryLod\s*\()", std::regex::ECMAScript);
+
+    if (glsl.find("textureQueryLod") == std::string::npos) {
+        return;
+    }
+    if (std::regex_search(glsl, defRegex)) {
+        return;
+    }
+
+    const std::string textureQueryLodImpl = R"(
+#define textureQueryLod mg_textureQueryLod
+
+vec2 mg_textureQueryLod(sampler2D tex, vec2 uv) {
+    vec2 texSizeF = vec2(textureSize(tex, 0));
+    vec2 dFdx_uv = dFdx(uv * texSizeF);
+    vec2 dFdy_uv = dFdy(uv * texSizeF);
+    float maxDerivative = max(length(dFdx_uv), length(dFdy_uv));
+    float lod = log2(maxDerivative);
+    return vec2(lod);
+}
+)";
+
+    size_t insertPos = find_insertion_point(glsl);
+    glsl.insert(insertPos, "\n" + textureQueryLodImpl + "\n");
+}
+
 static inline void inject_temporal_filter(std::string& glsl) {
-    const std::string temporalFilterCall = "deferredOutput2 = GI_TemporalFilter()";
-    const std::string temporalFilterDef = "vec4 GI_TemporalFilter()";
-    const std::string mainStart = "void main()";
+    const std::regex defRegex(R"(vec4\s+GI_TemporalFilter\s*\()", std::regex::ECMAScript);
 
-    // Already defined function
-    const auto def_loc = glsl.find(temporalFilterDef);
-    if (def_loc != std::string::npos)
+    if (glsl.find("GI_TemporalFilter") == std::string::npos) {
         return;
-
-    // Never called function
-    const auto call_loc = glsl.find(temporalFilterCall);
-    if (call_loc == std::string::npos)
+    }
+    if (std::regex_search(glsl, defRegex)) {
         return;
+    }
 
+    const std::regex uniformRegex(R"(^\s*(?:layout\s*\([^)]*\)\s*)?uniform\s+\w+(?:\s*\[\s*\d+\s*\])?\s+\w+(?:\s*\[\s*\d+\s*\])?\s*;.*$)", std::regex::ECMAScript | std::regex::multiline);
+    std::sregex_iterator it(glsl.begin(), glsl.end(), uniformRegex);
+    std::sregex_iterator end;
+    size_t insertPos = 0;
+    for (; it != end; ++it) {
+        insertPos = it->position() + it->length();
+    }
 
-    const auto main_loc = glsl.find(mainStart);
-    // No main(), no inject
-    if (main_loc == std::string::npos)
-        return;
-
-    const std::string GI_TemporalFilter = R"(
+    const std::string GI_TemporalFilterImpl = R"(
 vec4 GI_TemporalFilter() {
     vec2 uv = gl_FragCoord.xy / screenSize;
     uv += taaJitter * pixelSize;
@@ -855,9 +612,30 @@ vec4 GI_TemporalFilter() {
     return filteredGI;
 }
 )";
-    // Do injection here
-    glsl.insert(main_loc, "\n" + GI_TemporalFilter + "\n");
+    glsl.insert(insertPos, "\n" + GI_TemporalFilterImpl + "\n");
 }
+#define xstr(s) str(s)
+#define str(s) #s
+
+void inject_mg_macro_definition(std::string& glslCode) {
+    std::string macro_definitions =
+            "\n#define MG_MOBILEGLUES\n"
+            "#define MG_MOBILEGLUES_VERSION " xstr(MAJOR) xstr(MINOR) xstr(REVISION) xstr(PATCH) "\n";
+
+    size_t versionPos = glslCode.rfind("#version");
+    size_t insertionPos = 0;
+
+    if (versionPos != std::string::npos) {
+        size_t nextNewline = glslCode.find('\n', versionPos);
+        insertionPos = (nextNewline != std::string::npos) ? nextNewline + 1 : glslCode.length();
+    } else {
+        size_t firstNewline = glslCode.find('\n');
+        insertionPos = (firstNewline != std::string::npos) ? firstNewline + 1 : 0;
+    }
+
+    glslCode.insert(insertionPos, macro_definitions);
+}
+
 
 //static inline void inject_texture_define(std::string& glsl) {
 //    const std::string texture_define =
@@ -924,6 +702,20 @@ std::string preprocess_glsl(const std::string& glsl, GLenum glsl_type) {
 
     // GI_TemporalFilter injection
     inject_temporal_filter(ret);
+
+    // textureQueryLod injection
+    if (!g_gles_caps.GL_EXT_texture_query_lod) {
+        inject_textureQueryLod(ret);
+    }
+
+    // MobileGlues macros injection
+    inject_mg_macro_definition(ret);
+
+    if (hardware->emulate_texture_buffer) {
+        // Sampler buffer processing
+        process_sampler_buffer(ret);
+    }
+
     return ret;
 }
 
@@ -1045,17 +837,8 @@ std::string spirv_to_essl(std::vector<unsigned int> spirv, uint essl_version, in
 
 static bool glslang_inited = false;
 std::string GLSLtoGLSLES_2(const char *glsl_code, GLenum glsl_type, uint essl_version, int& return_code) {
-#ifdef FEATURE_PRE_CONVERTED_GLSL
-    if (getGLSLVersion(glsl_code) == 430) {
-        char* converted = preConvertedGlsl(glsl_code);
-        if (converted) {
-            LOG_D("Find pre-converted glsl, now use it.")
-            return converted;
-        }
-    }
-#endif
-//    char* correct_glsl = glsl_code;
     std::string correct_glsl_str = preprocess_glsl(glsl_code, glsl_type);
+    LOG_D("Firstly converted GLSL:\n%s", correct_glsl_str.c_str())
     int glsl_version = get_or_add_glsl_version(correct_glsl_str);
 
     LOG_D("Firstly converted GLSL:\n%s", correct_glsl_str.c_str())
@@ -1082,25 +865,23 @@ std::string GLSLtoGLSLES_2(const char *glsl_code, GLenum glsl_type, uint essl_ve
     essl = removeLayoutBinding(essl);
     essl = processOutColorLocations(essl);
     essl = forceSupporterOutput(essl);
-    //essl = makeRGBWriteonly(essl);
-
-//    char* result_essl = new char[essl.length() + 1];
-//    std::strcpy(result_essl, essl.c_str());
 
     LOG_D("Originally GLSL to GLSL ES Complete: \n%s", essl.c_str())
 
-//    free(shader_source);
-//    glslang::FinalizeProcess();
     return_code = errc;
     return essl;
 }
 
 std::string GLSLtoGLSLES_1(const char *glsl_code, GLenum glsl_type, uint esversion, int& return_code) {
+#if !defined(__APPLE__)
     LOG_W("Warning: use glsl optimizer to convert shader.")
     if (esversion < 300) esversion = 300;
     std::string result = MesaConvertShader(glsl_code, glsl_type == GL_VERTEX_SHADER ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER, 460LL, esversion);
-//    char * ret = (char*)malloc(sizeof(char) * strlen(result) + 1);
-//    strcpy(ret, result);
+
     return_code = 0;
     return result;
+#else
+    LOG_W_FORCE("Cannot convert glsl with version %d in MacOS/iOS", esversion);
+    return std::string(glsl_code);
+#endif
 }

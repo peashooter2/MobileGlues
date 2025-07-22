@@ -87,10 +87,14 @@ static name##_PTR egl_##name = NULL;                                        \
 #define INIT_CHECK_GL_ERROR_FORCE                                           \
     GLenum ERR = GL_NO_ERROR;
 
-#define NATIVE_FUNCTION_HEAD(type,name,...)                                 \
+#ifndef __APPLE__
+#define NATIVE_FUNCTION_HEAD(type,name,...) \
 extern "C" GLAPI GLAPIENTRY type name##ARB(__VA_ARGS__) __attribute__((alias(#name))); \
-extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__)  { \
-    LOG()
+extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__)  {
+#else
+#define NATIVE_FUNCTION_HEAD(type,name,...) \
+extern "C" GLAPI GLAPIENTRY type name(__VA_ARGS__)  {
+#endif
 
 #if GLOBAL_DEBUG
 #define NATIVE_FUNCTION_END(type,name,...)                                  \
@@ -154,6 +158,7 @@ struct gles_caps_t {
     int GL_OES_depth_texture_float;
     int GL_EXT_texture_norm16;
     int GL_EXT_texture_rg;
+    int GL_EXT_texture_query_lod;
 };
 
 extern struct gles_caps_t g_gles_caps;
