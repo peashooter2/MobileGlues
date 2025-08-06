@@ -31,7 +31,7 @@ void load_libs();
 #else
 #define INIT_GLES_FUNC(name)                                                \
     {                                                                       \
-        GLES.name = (name##_PTR)proc_address(gles, #name);           \
+        GLES.name = (name##_PTR)egl_eglGetProcAddress(#name);           \
     }
 #endif
 

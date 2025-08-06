@@ -229,6 +229,7 @@ void InitGLESCapabilities() {
 
 void init_target_gles() {
     init_gl_state();
+    LOAD_EGL(eglGetProcAddress);
 
     memset(&g_gles_func, 0, sizeof(g_gles_func));
     INIT_GLES_FUNC(glActiveTexture)

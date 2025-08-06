@@ -47,9 +47,9 @@ std::string handle_multidraw_func_name(std::string name) {
     return namestr;
 }
 
-void *glXGetProcAddress(const char *name) {
+__GLXextFuncPtr glXGetProcAddress(const GLubyte * name) {
     LOG()
-    std::string real_func_name = handle_multidraw_func_name(std::string(name));
+    std::string real_func_name = handle_multidraw_func_name(std::string((const char*)name));
 #ifdef __APPLE__
     return dlsym((void*)(~(uintptr_t)0), real_func_name.c_str());
 #else
@@ -63,10 +63,10 @@ void *glXGetProcAddress(const char *name) {
         return nullptr;
     }
 
-    return proc;
+    return reinterpret_cast<__GLXextFuncPtr>(proc);
 #endif
 }
 
-void *glXGetProcAddressARB(const char *name) {
+__GLXextFuncPtr glXGetProcAddressARB(const GLubyte * name) {
     return glXGetProcAddress(name);
 }

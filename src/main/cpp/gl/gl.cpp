@@ -1,4 +1,4 @@
-﻿//
+//
 // Created by Swung0x48 on 2024/10/8.
 //
 
@@ -11,6 +11,8 @@
 #include "mg.h"
 
 #define DEBUG 0
+#include <cmath>
+
 
 static GLclampd currentDepthValue;
 
