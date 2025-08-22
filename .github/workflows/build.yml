@@ -26,4 +26,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MobileGlues-iOS-dylib
-          path: /Users/runner/work/MobileGlues/MobileGlues/src/main/cpp/build
+          path: /Users/runner/work/MobileGlues/MobileGlues/src/main/cpp/build/libMobileGlues.dylib
